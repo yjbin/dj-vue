@@ -236,6 +236,7 @@ export default {
         fileAdd() {
             this.newModal = true;
             this.textTit = "新增";
+            this.activeShow = true;
             this.editObj = {};
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();

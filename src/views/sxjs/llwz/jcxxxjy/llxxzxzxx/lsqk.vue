@@ -1,178 +1,191 @@
 <template>
     <div class="xxxjpzsjzylsqk">
-        <el-form :inline="true" class="demo-form-inline">
-            <!-- <el-form-item label="年度">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
-                    <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item> -->
-            <el-form-item label="主讲人">
-                <el-input placeholder="主讲人" prefix-icon="el-icon-search" v-model.trim="seatch_zjr"></el-input>
-            </el-form-item>
-            <el-form-item label="学习主题">
-                <el-input placeholder="学习主题" prefix-icon="el-icon-search" v-model.trim="seatch_xxzt"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
-            </el-form-item>
-        </el-form>
-        <div class="capit-tit">
-            <el-row>
-                <el-col :span="12">
-                    <div class="user-left">
-                        <span>落实情况</span>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="capit-list">
-            <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
-                <!-- <el-table-column type="selection"></el-table-column> -->
-                <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-                <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>   
-                <el-table-column prop="xxsj" label="学习时间" :formatter="xxsjDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="xxdd" label="地点" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="jlr" label="记录人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="zjr" label="主讲人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="操作" width="200">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" @click="fileEdit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="listDel(scope.row)" :disabled="(scope.row.by3=='1'?true:false)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <div class="user-page fr">
-                <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-                </el-pagination>
+        <div v-show="applyXg">
+            <el-form :inline="true" class="demo-form-inline">
+                <!-- <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item> -->
+                <el-form-item label="主讲人">
+                    <el-input placeholder="主讲人" prefix-icon="el-icon-search" v-model.trim="seatch_zjr"></el-input>
+                </el-form-item>
+                <el-form-item label="学习主题">
+                    <el-input placeholder="学习主题" prefix-icon="el-icon-search" v-model.trim="seatch_xxzt"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
+                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span>落实情况</span>
+                        </div>
+                    </el-col>
+                </el-row>
             </div>
-            <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-                <div class="dict-content">
-                    <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="时间" prop="xxsj">
-                                    <el-date-picker v-model="editObj.xxsj" type="date" value-format="timestamp" placeholder="学习时间"></el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="地点" prop="xxdd">
-                                    <el-input v-model.trim="editObj.xxdd" placeholder="学习地点"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="主讲人" prop="zjr">
-                                    <el-input v-model.trim="editObj.zjr" placeholder="主讲人"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="参加人员" prop="cyry">
-                                    <el-input v-model.trim="editObj.cyry" placeholder="参加人员"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="应到人数" label-width="121px" prop="ydrs">
-                                    <el-input v-model.trim="editObj.ydrs" placeholder="应到人数"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="实到人数" prop="sdrs">
-                                    <el-input v-model.trim="editObj.sdrs" placeholder="实到人数"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="缺席人" prop="qxr">
-                                    <el-input v-model.trim="editObj.qxr" placeholder="缺席人（无缺席人员可不填）"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="缺席原因" prop="qxyy">
-                                    <el-input v-model.trim="editObj.qxyy" placeholder="缺席原因（无缺席人员可不填）"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="学习主题" prop="xxzt">
-                                    <el-input v-model.trim="editObj.xxzt" placeholder="学习主题"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <!-- <el-col :span="11" :offset="1">
-                                <el-form-item label="学习内容" prop="xxnr">
-                                    <el-input v-model="editObj.xxnr" placeholder="学习内容"></el-input>
-                                </el-form-item>
-                            </el-col> -->
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="记录人" prop="jlr">
-                                    <el-input v-model.trim="editObj.jlr" placeholder="记录人"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="行政区划" prop="xzqh">
-                                    <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
-                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="部门" prop="bm">
-                                    <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
-                                        <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="录入人" prop="lrr">
-                                    <el-input v-model="editObj.lrr" placeholder="录入人" :disabled="true"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="录入时间" prop="lrsj">
-                                    <el-date-picker v-model="editObj.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="20" :offset="3">
-                                <el-button type="success" size="small" @click="fileClick('xxnr')">学习内容（附件）</el-button>
-                            </el-col>
-                        </el-row>
-                    </el-form>
-                </div>
-                <div class="footerBox">
-                    <span slot="footer" class="dialog-footer">
-                        <button v-show="activeShow" class="save" @click="btn_fileSave">保 存</button>
-                        <button @click="btn_cancel" class="cancel">取 消</button>
-                    </span>
-                </div>
+            <div class="capit-list">
+                <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>   
+                    <el-table-column prop="xxsj" label="学习时间" :formatter="xxsjDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xxdd" label="地点" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="jlr" label="记录人" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="zjr" label="主讲人" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
 
-            </el-dialog>
+                <div class="user-page fr">
+                    <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
+                </div>
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+                    <div class="dict-content">
+                        <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="时间" prop="xxsj">
+                                        <el-date-picker v-model="editObj.xxsj" type="date" value-format="timestamp" placeholder="学习时间"></el-date-picker>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="地点" prop="xxdd">
+                                        <el-input v-model.trim="editObj.xxdd" placeholder="学习地点"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="主讲人" prop="zjr">
+                                        <el-input v-model.trim="editObj.zjr" placeholder="主讲人"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="参加人员" prop="cyry">
+                                        <el-input v-model.trim="editObj.cyry" placeholder="参加人员"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="应到人数" label-width="121px" prop="ydrs">
+                                        <el-input v-model.trim="editObj.ydrs" placeholder="应到人数"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="实到人数" prop="sdrs">
+                                        <el-input v-model.trim="editObj.sdrs" placeholder="实到人数"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="缺席人" prop="qxr">
+                                        <el-input v-model.trim="editObj.qxr" placeholder="缺席人（无缺席人员可不填）"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="缺席原因" prop="qxyy">
+                                        <el-input v-model.trim="editObj.qxyy" placeholder="缺席原因（无缺席人员可不填）"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="学习主题" prop="xxzt">
+                                        <el-input v-model.trim="editObj.xxzt" placeholder="学习主题"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <!-- <el-col :span="11" :offset="1">
+                                    <el-form-item label="学习内容" prop="xxnr">
+                                        <el-input v-model="editObj.xxnr" placeholder="学习内容"></el-input>
+                                    </el-form-item>
+                                </el-col> -->
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="记录人" prop="jlr">
+                                        <el-input v-model.trim="editObj.jlr" placeholder="记录人"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="行政区划" prop="xzqh">
+                                        <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="部门" prop="bm">
+                                        <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="录入人" prop="lrr">
+                                        <el-input v-model="editObj.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="录入时间" prop="lrsj">
+                                        <el-date-picker v-model="editObj.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="20" :offset="3">
+                                    <el-button type="success" size="small" @click="fileClick('xxnr')">学习内容（附件）</el-button>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </div>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" class="save" @click="btn_fileSave">保 存</button>
+                            <button @click="btn_cancel" class="cancel">取 消</button>
+                        </span>
+                    </div>
+
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
-        <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab, moreMenu } from "@/utils/config";
 import { formatDate } from "@/utils/data";
+import { validPasInt } from "@/utils/validate";
 import {
     dateQuery,
     dateAdd,
@@ -181,10 +194,20 @@ import {
 } from "@/api/sxjs/xxb";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying
     },
     data() {
+        const validNum = (rule, value, callback) => {
+            if (!validPasInt(value)) {
+                callback(new Error("请输入正确的人数~^~^~"));
+            } else {
+                callback();
+            }
+        };
         return {
+            applyXg:true,
+            applyCode:{},
             hasFileShow:"",
             hasFile: false,
             seatch_zjr: "",
@@ -223,8 +246,8 @@ export default {
                 xxsj: [{ required: true, message: "不能为空" }],
                 xxdd: [{ required: true, message: "不能为空" }],
                 cyry: [{ required: true, message: "不能为空" }],
-                ydrs: [{ required: true, message: "不能为空" }],
-                sdrs: [{ required: true, message: "不能为空" }],
+                ydrs: [{ required: true, validator:validNum  }],
+                sdrs: [{ required: true, validator:validNum }],
                 jlr: [{ required: true, message: "不能为空" }],
                 zjr: [{ required: true, message: "不能为空" }],
                 xxzt: [{ required: true, message: "不能为空" }],
@@ -233,6 +256,18 @@ export default {
         };
     },
     methods: {
+        btnBack(val) {
+            this.applyXg = val;
+            this.ListQuery();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = Object.assign({},{
+                num: Math.random(),
+                code: row.code,
+                sqzt: row.sqzt
+            });
+        },
         xxsjDic(row) {
             return formatDate(row.xxsj, "yyyy-MM-dd");
         },
@@ -254,6 +289,7 @@ export default {
         fileAdd() {
             this.newModal = true;
             this.textTit = "新增";
+            this.activeShow = true;
             this.editObj = {};
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
@@ -262,7 +298,13 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+            if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
@@ -334,45 +376,55 @@ export default {
         btn_fileSave() {
             this.$refs.editObj.validate(valid => {
                 if (valid) {
-                    let _this = this;
-                    let obj = Object.assign({}, this.editObj);
-                    obj.lrrId = this.$store.state.user.user.uUser.id;
-                    obj.xxlx = "2";
-                    if (this.editObj.id) {
-                        dateUpdate(obj).then(res => {
-                            let data = res.data;
-                            if (data.success) {
-                                _this.btn_cancel();
-                                _this.$message({
-                                    message: data.msg,
-                                    type: "success"
-                                });
-                                _this.ListQuery();
-                            } else {
-                                this.$message({
-                                    message: data.msg,
-                                    type: "warning"
-                                });
-                            }
-                        });
-                    } else {
-                        dateAdd(obj).then(res => {
-                            let data = res.data;
-                            if (data.success) {
-                                _this.btn_cancel();
-                                this.$message({
-                                    message: data.msg,
-                                    type: "success"
-                                });
-                                _this.ListQuery();
-                            } else {
-                                this.$message({
-                                    message: data.msg,
-                                    type: "warning"
-                                });
-                            }
-                        });
+                    if(this.editObj.ydrs>=this.editObj.sdrs){
+                        let _this = this;
+                        let obj = Object.assign({}, this.editObj);
+                        obj.lrrId = this.$store.state.user.user.uUser.id;
+                        obj.xxlx = "2";
+                        obj.sqzt = "1";
+                        if (this.editObj.id) {
+                            dateUpdate(obj).then(res => {
+                                let data = res.data;
+                                if (data.success) {
+                                    _this.btn_cancel();
+                                    _this.$message({
+                                        message: data.msg,
+                                        type: "success"
+                                    });
+                                    _this.ListQuery();
+                                } else {
+                                    this.$message({
+                                        message: data.msg,
+                                        type: "warning"
+                                    });
+                                }
+                            });
+                        } else {
+                            dateAdd(obj).then(res => {
+                                let data = res.data;
+                                if (data.success) {
+                                    _this.btn_cancel();
+                                    this.$message({
+                                        message: data.msg,
+                                        type: "success"
+                                    });
+                                    _this.ListQuery();
+                                } else {
+                                    this.$message({
+                                        message: data.msg,
+                                        type: "warning"
+                                    });
+                                }
+                            });
+                        }    
+                    }else{
+                        this.$message({
+                            message:"应到人数应大于实际人数",
+                            type:"warning"
+                        })
+                        return false
                     }
+                       
                 }
             });
         },

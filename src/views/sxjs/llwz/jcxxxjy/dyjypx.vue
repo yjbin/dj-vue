@@ -1,192 +1,205 @@
 <template>
     <div class="xxxjpzsjzylsqk">
-        <el-form :inline="true" class="demo-form-inline">
-            <!-- <el-form-item label="年度">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
-                    <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item> -->
-            <el-form-item label="培训主题">
-                <el-input placeholder="培训主题" prefix-icon="el-icon-search" v-model.trim="seatch_pxzt"></el-input>
-            </el-form-item>
-            <el-form-item label="授课人">
-                <el-input placeholder="授课人" prefix-icon="el-icon-search" v-model.trim="seatch_skr"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
-            </el-form-item>
-        </el-form>
-        <div class="capit-tit">
-            <el-row>
-                <el-col :span="12">
-                    <div class="user-left">
-                        <span>党员教育培训</span>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="capit-list">
-            <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
-                <!-- <el-table-column type="selection"></el-table-column> -->
-                <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-                <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="pxzt" label="培训主题" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="pxsj" label="培训时间" :formatter="pxsjDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="skr" label="授课人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="pxdd" label="培训地点" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="zzdw" label="组织单位" show-overflow-tooltip></el-table-column>
-                
-                <el-table-column prop="sfbb" label="是否报备" :formatter="sfbbDicToWord" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="操作" width="200">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" @click="fileEdit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="listDel(scope.row)" :disabled="(scope.row.by3=='1'?true:false)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <div class="user-page fr">
-                <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-                </el-pagination>
+        <div v-show="applyXg">
+            <el-form :inline="true" class="demo-form-inline">
+                <!-- <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item> -->
+                <el-form-item label="培训主题">
+                    <el-input placeholder="培训主题" prefix-icon="el-icon-search" v-model.trim="seatch_pxzt"></el-input>
+                </el-form-item>
+                <el-form-item label="授课人">
+                    <el-input placeholder="授课人" prefix-icon="el-icon-search" v-model.trim="seatch_skr"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
+                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span>党员教育培训</span>
+                        </div>
+                    </el-col>
+                </el-row>
             </div>
-            <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-                <div class="dict-content">
-                    <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="主题" prop="pxzt">
-                                    <el-input v-model.trim="editObj.pxzt" placeholder="培训主题"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="时间" prop="pxsj">
-                                    <el-date-picker v-model="editObj.pxsj" type="date" value-format="timestamp" placeholder="培训时间"></el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="地点" prop="pxdd">
-                                    <el-input v-model.trim="editObj.pxdd" placeholder="培训地点"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="培训人数" label-width="121px" prop="pxrs">
-                                    <el-input v-model.trim="editObj.pxrs" placeholder="应到人数"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="23">
-                                <el-form-item label="培训对象" prop="pxdx">
-                                   <el-input type="textarea" v-model.trim="editObj.pxdx" placeholder="培训对象"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="23">
-                                <el-form-item label="培训内容" prop="pxnr">
-                                    <el-input type="textarea" v-model.trim="editObj.pxnr" placeholder="培训内容"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="组织单位" prop="zzdw">
-                                    <el-input v-model.trim="editObj.zzdw" placeholder="组织单位"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="授课人" prop="skr">
-                                    <el-input v-model.trim="editObj.skr" placeholder="授课人"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="23">
-                                <el-form-item label="授课人信息" prop="skrxx">
-                                    <el-input type="textarea"  placeholder="请输入授课人单位、职务/职级" v-model.trim="editObj.skrxx"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="23">
-                                <el-form-item label="授课内容" prop="sknr">
-                                    <el-input type="textarea" v-model.trim="editObj.sknr" placeholder="授课内容"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="是否报备" prop="sfbb">
-                                    <el-select suffix-icon="el-icon-date" v-model="editObj.sfbb" style="width:100%">
-                                        <el-option v-for="(item,index) in sfbbOptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="费用(元)" prop="pxfy">
-                                    <el-input v-model.trim="editObj.pxfy" placeholder="费用(元)"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="行政区划" prop="xzqh">
-                                    <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
-                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="部门" prop="bm">
-                                    <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
-                                        <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="录入人" prop="lrr">
-                                    <el-input v-model="editObj.lrr" placeholder="录入人" :disabled="true"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="录入时间" prop="lrsj">
-                                    <el-date-picker v-model="editObj.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="20" :offset="3">
-                                <el-button type="success" size="small" @click="fileClick('pxfa')">培训方案（附件）</el-button>
-                            </el-col>
-                        </el-row>
-                    </el-form>
-                </div>
-                <div class="footerBox">
-                    <span slot="footer" class="dialog-footer">
-                        <button v-show="activeShow" class="save" @click="btn_fileSave">保 存</button>
-                        <button @click="btn_cancel" class="cancel">取 消</button>
-                    </span>
-                </div>
+            <div class="capit-list">
+                <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="pxzt" label="培训主题" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="pxsj" label="培训时间" :formatter="pxsjDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="skr" label="授课人" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="pxdd" label="培训地点" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="zzdw" label="组织单位" show-overflow-tooltip></el-table-column>
+                    
+                    <el-table-column prop="sfbb" label="是否报备" :formatter="sfbbDicToWord" show-overflow-tooltip></el-table-column>
+                     <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
 
-            </el-dialog>
+                <div class="user-page fr">
+                    <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
+                </div>
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" top="5vh">
+                    <div class="dict-content">
+                        <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="主题" prop="pxzt">
+                                        <el-input v-model.trim="editObj.pxzt" placeholder="培训主题"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="时间" prop="pxsj">
+                                        <el-date-picker v-model="editObj.pxsj" type="date" value-format="timestamp" placeholder="培训时间"></el-date-picker>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="地点" prop="pxdd">
+                                        <el-input v-model.trim="editObj.pxdd" placeholder="培训地点"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="培训人数" label-width="121px" prop="pxrs">
+                                        <el-input v-model.trim="editObj.pxrs" placeholder="应到人数"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="23">
+                                    <el-form-item label="培训对象" prop="pxdx">
+                                    <el-input type="textarea" v-model.trim="editObj.pxdx" placeholder="培训对象"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="23">
+                                    <el-form-item label="培训内容" prop="pxnr">
+                                        <el-input type="textarea" v-model.trim="editObj.pxnr" placeholder="培训内容"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="组织单位" prop="zzdw">
+                                        <el-input v-model.trim="editObj.zzdw" placeholder="组织单位"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="授课人" prop="skr">
+                                        <el-input v-model.trim="editObj.skr" placeholder="授课人"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="23">
+                                    <el-form-item label="授课人信息" prop="skrxx">
+                                        <el-input type="textarea"  placeholder="请输入授课人单位、职务/职级" v-model.trim="editObj.skrxx"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="23">
+                                    <el-form-item label="授课内容" prop="sknr">
+                                        <el-input type="textarea" v-model.trim="editObj.sknr" placeholder="授课内容"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="是否报备" prop="sfbb">
+                                        <el-select suffix-icon="el-icon-date" v-model="editObj.sfbb" style="width:100%">
+                                            <el-option v-for="(item,index) in sfbbOptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="费用(元)" prop="pxfy">
+                                        <el-input v-model.trim="editObj.pxfy" placeholder="费用(元)"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="行政区划" prop="xzqh">
+                                        <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="部门" prop="bm">
+                                        <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="录入人" prop="lrr">
+                                        <el-input v-model="editObj.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="录入时间" prop="lrsj">
+                                        <el-date-picker v-model="editObj.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="20" :offset="3">
+                                    <el-button type="success" size="small" @click="fileClick('pxfa')">培训方案（附件）</el-button>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </div>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" class="save" @click="btn_fileSave">保 存</button>
+                            <button @click="btn_cancel" class="cancel">取 消</button>
+                        </span>
+                    </div>
+
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
-        <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab, moreMenu } from "@/utils/config";
 import { formatDate } from "@/utils/data";
+import { validPasInt,validMoney,validName } from "@/utils/validate";
 import {
     khpyQuery,
     khpyAdd,
@@ -195,10 +208,34 @@ import {
 } from "@/api/sxjs/jcdzzsjpx";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+         applyrModifying
     },
     data() {
+        const validNames = (rule, value, callback) => {
+            if (!validName(value)) {
+                callback(new Error("请输入正确的姓名~^~^~"));
+            } else {
+                callback();
+            }
+        };
+        const validMoneys = (rule, value, callback) => {
+            if (!validMoney(value)) {
+                callback(new Error("请输入正确的金额~^~^~"));
+            } else {
+                callback();
+            }
+        };
+         const validNum = (rule, value, callback) => {
+            if (!validPasInt(value)) {
+                callback(new Error("请输入正确的人数~^~^~"));
+            } else {
+                callback();
+            }
+        };
         return {
+            applyXg:true,
+            applyCode:{},
             hasFile: false,
             seatch_pxzt: "",
             seatch_skr: "",
@@ -241,22 +278,33 @@ export default {
                 pxsj:  [{ required: true, message: "不能为空" }],
                 pxdd:  [{ required: true, message: "不能为空" }],
                 pxdx:  [{ required: true, message: "不能为空" }],
-                pxrs:  [{ required: true, message: "不能为空" }],
+                pxrs:  [{ required: true, validator:validNum }],
                 pxnr:  [{ required: true, message: "不能为空" }],
                 zzdw:  [{ required: true, message: "不能为空" }],
-                skr:   [{ required: true, message: "不能为空" }],
+                skr:   [{ required: true, validator:validNames }],
                 skrxx: [{ required: true, message: "不能为空" }],
                 sknr:  [{ required: true, message: "不能为空" }],
                 sfbb:  [{ required: true, message: "不能为空" }],
                 bbsj:  [{ required: true, message: "不能为空" }],
-                pxfy:  [{ required: true, message: "不能为空" }]
+                pxfy:  [{ required: true, validator:validMoneys }]
             },
             sfbbOptions: [],
             value: '',
         };
     },
     methods: {
-        
+        btnBack(val) {
+            this.applyXg = val;
+            this.ListQuery();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = Object.assign({},{
+                num: Math.random(),
+                code: row.code,
+                sqzt: row.sqzt
+            });
+        },
         sfbbDicToWord(row) {
             return getDicTab("sf-1", row.sfbb)
         },
@@ -283,6 +331,7 @@ export default {
         fileAdd() {
             this.newModal = true;
             this.textTit = "新增";
+            this.activeShow = true;
             this.editObj = {};
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
@@ -291,7 +340,13 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+             if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             this.editObj = Object.assign({}, row);
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
@@ -369,6 +424,7 @@ export default {
                     obj.lrrId = this.$store.state.user.user.uUser.id;
                     obj.code = this.$store.state.user.user.uUser.id;
                     obj.pxlx = "2";
+                    obj.sqzt = "1";
                     if (this.editObj.id) {
                         khpyUpdate(obj).then(res => {
                             let data = res.data;

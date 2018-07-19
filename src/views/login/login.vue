@@ -128,6 +128,7 @@ export default {
             var arr2 = arr[i].split("=");
             if (arr2[0] == name) {
               this.checked = true;
+              this.loginForm.password = "";
               this.loginForm.password = arr2[1]; //找到所需要的信息返回出来
             }
           }

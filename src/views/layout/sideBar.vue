@@ -50,9 +50,10 @@ export default {
         color: #fff;
     }
     .is-active>div:not(.el-menu--vertical) {
-        
-           background-color: #000 !important; 
-        
+           background-color: #000 !important;   
+    }
+    .is-opened>div:not(.el-menu--vertical){
+        background-color: #2A2A2A!important;
     }
     .el-menu-item.is-active {
         background-color: #000 !important;
