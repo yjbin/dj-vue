@@ -25,6 +25,7 @@ export default {
             this.oneLevel = !this.oneLevel;
         }
     },
+
     computed: {
         ...mapGetters(["permission_routers"])
     }
@@ -47,6 +48,11 @@ export default {
     border-right: 0;
     i {
         color: #fff;
+    }
+    .is-active>div:not(.el-menu--vertical) {
+        
+           background-color: #000 !important; 
+        
     }
     .el-menu-item.is-active {
         background-color: #000 !important;

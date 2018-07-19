@@ -1,160 +1,160 @@
 <template>
     <div class="wmcs">
-        <el-form :inline="true" class="demo-form-inline">
-            <el-form-item label="年度">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
-                    <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <!-- <el-form-item label="问题接收部门">
-                <el-input placeholder="问题接收部门" prefix-icon="el-icon-search" v-model.trim="seatch_js_bm"></el-input> 
-            </el-form-item> -->
-            <el-form-item>
-                <button class="topQuery" @click="search_query">搜索</button>
-                <button class="topQuery" @click="newAdd">添加记录</button>
-            </el-form-item>
-        </el-form>
-        <div class="capit-tit">
-            <el-row>
-                <el-col :span="12">
-                    <div class="user-left">
-                        <span class="capit-content">创城问卷调查</span>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="capit-list">
-            <el-table :data="wmcsList" stripe border style="width: 100%">
-                <!-- <el-table-column type="selection"></el-table-column> -->
-                <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-                <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="sj" :formatter="formatterDatesj" label="问卷调查时间" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="jsBm" label="问题接收部门" :formatter="getBmbm2"  show-overflow-tooltip></el-table-column>
-                <el-table-column prop="hfsj" :formatter="formatterDatehfsj" label="回复时间" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
-                <el-table-column label="操作" width="150">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div class="fr">
-                <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-                </el-pagination>
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <!-- <el-form-item label="问题接收部门">
+                    <el-input placeholder="问题接收部门" prefix-icon="el-icon-search" v-model.trim="seatch_js_bm"></el-input> 
+                </el-form-item> -->
+                <el-form-item>
+                    <button class="topQuery" @click="search_query">搜索</button>
+                    <button class="topQuery" @click="newAdd">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span class="capit-content">创城问卷调查</span>
+                        </div>
+                    </el-col>
+                </el-row>
             </div>
-            <!-- 新建，编辑弹框 -->
-            <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-                <el-form :inline="true" :model="wmcsForm" ref="wmcsForms" class="demo-form-inline" label-width="120px" :rules="wmcsrules">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="年度" prop="year">
-                                <el-select v-model="wmcsForm.year" placeholder="请选择" style="width:100%">
-                                    <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="问卷调查时间" prop="sj">
-                                <el-date-picker v-model="wmcsForm.sj" type="date" value-format="timestamp" placeholder="问卷调查时间"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="接收行政区划" prop="jsXzqh">
-                                <el-input v-model="wmcsForm.jsXzqh" placeholder="接收行政区划" @focus="modelStatus('xzqh')"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="问题接收部门" prop="jsBm">
-                                <el-input v-model="wmcsForm.jsBm" placeholder="问题接收部门" @focus="modelStatus('bm')"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="回复时间" prop="hfsj">
-                                <el-date-picker v-model="wmcsForm.hfsj" type="date" value-format="timestamp" placeholder="回复时间"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="23">
-                            <el-form-item label="主题描述" prop="ztms">
-                                <el-input type="textarea" v-model.trim="wmcsForm.ztms" :autosize="{ minRows: 5}"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="行政区划" prop="xzqh">
-                                <el-select v-model="wmcsForm.xzqh" placeholder="请选择" style="width:100%" disabled>
-                                    <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="部门科室" prop="bm">
-                                <el-select v-model="wmcsForm.bm" placeholder="请选择" style="width:100%" disabled>
-                                    <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="录入人" prop="lrr">
-                                <el-input v-model="wmcsForm.lrr" placeholder="录入人" :disabled="true"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="录入时间" prop="lrsj">
-                                <el-date-picker v-model="wmcsForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="20" :offset="3">
-                            <el-button size="small" type="success" @click="fileClick('fj')">附件</el-button>
-                        </el-col>
-                    </el-row>
-                </el-form>
-                <div class="footerBox">
-                    <span slot="footer" class="dialog-footer">
-                        <button v-show="activeShow" class="save" @click="btn_save">保存</button>
-                        <button @click="btn_cancel" class="cancel">取消</button>
-                    </span>
+            <div class="capit-list">
+                <el-table :data="wmcsList" stripe border style="width: 100%">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="sj" :formatter="formatterDatesj" label="问卷调查时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="jsBm" label="问题接收部门" :formatter="getBmbm2"  show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="hfsj" :formatter="formatterDatehfsj" label="回复时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" width="150">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
+                            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="fr">
+                    <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
                 </div>
+                <!-- 新建，编辑弹框 -->
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+                    <el-form :inline="true" :model="wmcsForm" ref="wmcsForms" class="demo-form-inline" label-width="120px" :rules="wmcsrules">
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="年度" prop="year">
+                                    <el-select v-model="wmcsForm.year" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="问卷调查时间" prop="sj">
+                                    <el-date-picker v-model="wmcsForm.sj" type="date" value-format="timestamp" placeholder="问卷调查时间"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="接收行政区划" prop="jsXzqh">
+                                    <el-input v-model="wmcsForm.jsXzqh" placeholder="接收行政区划" @focus="modelStatus('xzqh')"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="问题接收部门" prop="jsBm">
+                                    <el-input v-model="wmcsForm.jsBm" placeholder="问题接收部门" @focus="modelStatus('bm')"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="回复时间" prop="hfsj">
+                                    <el-date-picker v-model="wmcsForm.hfsj" type="date" value-format="timestamp" placeholder="回复时间"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="23">
+                                <el-form-item label="主题描述" prop="ztms">
+                                    <el-input type="textarea" v-model.trim="wmcsForm.ztms" :autosize="{ minRows: 5}"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="行政区划" prop="xzqh">
+                                    <el-select v-model="wmcsForm.xzqh" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="部门科室" prop="bm">
+                                    <el-select v-model="wmcsForm.bm" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="录入人" prop="lrr">
+                                    <el-input v-model="wmcsForm.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="录入时间" prop="lrsj">
+                                    <el-date-picker v-model="wmcsForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="20" :offset="3">
+                                <el-button size="small" type="success" @click="fileClick('fj')">附件</el-button>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
+                            <button @click="btn_cancel" class="cancel">取消</button>
+                        </span>
+                    </div>
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+            <!-- 行政证区划弹框 -->
+            <el-dialog :title="model_Tit" :visible.sync="xzqh_model" width="50%" :before-close="xzqhClose">
+                <el-tree :data="xzqh_data" @node-click="nodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+                </el-tree>
+                <span slot="footer" class="dialog-footer">
+                    <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
+                    <el-button @click="xzqhClose">取 消</el-button>
+                </span>
+            </el-dialog>
+            <!-- 部门弹框 -->
+            <el-dialog :title="model_Tit" :visible.sync="bm_model" width="50%" :before-close="xzqhClose">
+                <el-tree :data="bm_data" @node-click="bmnodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+                </el-tree>
+                <span slot="footer" class="dialog-footer">
+                    <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
+                    <el-button @click="xzqhClose">取 消</el-button>
+                </span>
             </el-dialog>
         </div>
-        <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
-        <!-- 行政证区划弹框 -->
-        <el-dialog :title="model_Tit" :visible.sync="xzqh_model" width="50%" :before-close="xzqhClose">
-            <el-tree :data="xzqh_data" @node-click="nodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
-            </el-tree>
-            <span slot="footer" class="dialog-footer">
-                <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
-                <el-button @click="xzqhClose">取 消</el-button>
-            </span>
-        </el-dialog>
-        <!-- 部门弹框 -->
-        <el-dialog :title="model_Tit" :visible.sync="bm_model" width="50%" :before-close="xzqhClose">
-            <el-tree :data="bm_data" @node-click="bmnodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
-            </el-tree>
-            <span slot="footer" class="dialog-footer">
-                <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
-                <el-button @click="xzqhClose">取 消</el-button>
-            </span>
-        </el-dialog>
-    </div>
 </template>
 <script>
 import accessoryModel from "@/components/accessoryModel";
@@ -165,7 +165,7 @@ import { treeQuery } from "@/api/administrative";
 import { treeQueryBm } from "@/api/department";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
     },
     data() {
         return {

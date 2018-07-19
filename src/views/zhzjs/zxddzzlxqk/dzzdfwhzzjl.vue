@@ -1,5 +1,7 @@
 <template>
   <div class="dzzdfwhzzjl">
+    <div v-show="applyXg">
+
     <el-form :inline="true" class="demo-form-inline">
       <el-form-item label="年度">
         <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
@@ -45,11 +47,15 @@
             <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
             <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
             <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
-            <el-table-column label="操作" width="150">
-              <template slot-scope="scope">
-                <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-                <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
-              </template>
+            <el-table-column label="操作" width="250">
+                <template slot-scope="scope">
+                    <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                    <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                    <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                    <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                    <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                    <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                </template>
             </el-table-column>
           </el-table>
           <div class="fr">
@@ -80,11 +86,15 @@
             <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
             <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
             <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
-            <el-table-column label="操作" width="150">
-              <template slot-scope="scope">
-                <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-                <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
-              </template>
+            <el-table-column label="操作" width="250">
+                <template slot-scope="scope">
+                    <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                    <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                    <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                    <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                    <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                    <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                </template>
             </el-table-column>
           </el-table>
           <div class="fr">
@@ -299,8 +309,15 @@
     </el-dialog>
     <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
   </div>
+  <transition enter-active-class="animated zoomIn">
+    <div v-show="!applyXg">
+        <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+    </div>
+  </transition>       
+</div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import confereeModel from "@/components/confereeModel";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab } from "@/utils/config";
@@ -308,443 +325,471 @@ import { formatDate } from "@/utils/data";
 import { hybSearch, hybSave, hybDel } from "@/api/zhzjs/hyb";
 import { hdbSearch, hdbSave, hdbDel } from "@/api/zhzjs/hdb";
 export default {
-    components: {
-        accessoryModel,
-        confereeModel
+  components: {
+    accessoryModel,
+    confereeModel,
+    applyrModifying
+  },
+  data() {
+    return {
+      applyXg: true,
+      applyCode: {},
+      seatch_nd: "",
+      seatch_month: "",
+      lx: "0",
+      activeName: "first",
+      textTit: "",
+      hyModal: false,
+      hdModal: false,
+      pageModal: false,
+      activeShow: true,
+      pageNo: 1,
+      pageSize: 10,
+      totalCount: 0,
+      hyList: [],
+      hdList: [],
+      hyForm: {},
+      hdForm: {},
+      ndoptions: [],
+      ndoptions2: [],
+      month: [],
+      xzqhoptions: [],
+      bmoptions: [],
+      lxOptions: [],
+      hyrules: {
+        year: [{ required: true, message: "不能为空" }],
+        month: [{ required: true, message: "不能为空" }],
+        hysj: [{ required: true, message: "不能为空" }],
+        hynr: [{ required: true, message: "不能为空" }],
+        zjr: [{ required: true, message: "不能为空" }]
+      },
+      hdrules: {
+        year: [{ required: true, message: "不能为空" }],
+        month: [{ required: true, message: "不能为空" }],
+        hysj: [{ required: true, message: "不能为空" }],
+        hynr: [{ required: true, message: "不能为空" }],
+        hdzt: [{ required: true, message: "不能为空" }],
+        hdnr: [{ required: true, message: "不能为空" }],
+        hddd: [{ required: true, message: "不能为空" }],
+        hdsj: [{ required: true, message: "不能为空" }]
+      },
+      accessoryModalInt: false,
+      upShowhide: true,
+      textTitFile: "",
+      fileSrc: "",
+      chooseList: [],
+      elseList: "",
+      chryoption: {
+        num: Math.random(),
+        chryList: []
+      },
+      qtryoption: {
+        num: Math.random(),
+        qtryList: ""
+      }
+    };
+  },
+  methods: {
+    btnBack(val) {
+      this.applyXg = val;
+      this.search_query(this.lx);
     },
-    data() {
-        return {
-            seatch_nd: "",
-            seatch_month: "",
-            lx: "0",
-            activeName: "first",
-            textTit: "",
-            hyModal: false,
-            hdModal: false,
-            pageModal: false,
-            activeShow: true,
-            pageNo: 1,
-            pageSize: 10,
-            totalCount: 0,
-            hyList: [],
-            hdList: [],
-            hyForm: {},
-            hdForm: {},
-            ndoptions: [],
-            ndoptions2: [],
-            month: [],
-            xzqhoptions: [],
-            bmoptions: [],
-            lxOptions: [],
-            hyrules: {
-                year: [{ required: true, message: "不能为空" }],
-                month: [{ required: true, message: "不能为空" }],
-                hysj: [{ required: true, message: "不能为空" }],
-                hynr: [{ required: true, message: "不能为空" }],
-                zjr: [{ required: true, message: "不能为空" }]
-            },
-            hdrules: {
-                year: [{ required: true, message: "不能为空" }],
-                month: [{ required: true, message: "不能为空" }],
-                hysj: [{ required: true, message: "不能为空" }],
-                hynr: [{ required: true, message: "不能为空" }],
-                hdzt: [{ required: true, message: "不能为空" }],
-                hdnr: [{ required: true, message: "不能为空" }],
-                hddd: [{ required: true, message: "不能为空" }],
-                hdsj: [{ required: true, message: "不能为空" }]
-            },
-            accessoryModalInt: false,
-            upShowhide: true,
-            textTitFile: "",
-            fileSrc: "",
-            chooseList: [],
-            elseList: "",
-            chryoption: {
-                num: Math.random(),
-                chryList: []
-            },
-            qtryoption: {
-                num: Math.random(),
-                qtryList: ""
-            }
-        };
-    },
-    methods: {
-        //切换活动会议类型
-        handleClick(tab) {
-            if (tab.name == "first") {
-                this.lx = 0;
-                this.search_query(0);
-            } else if (tab.name == "second") {
-                this.lx = 1;
-                this.search_query(1);
-            }
-        },
-        //接受参会人组件
-        elseStr(val) {
-            this.elseList = "";
-            this.elseList = val;
-        },
-        choList(val) {
-            this.chooseList = [];
-            this.chooseList = val;
-        },
-        btn_cancel() {
-            if (this.lx == 0) {
-                this.hyModal = false;
-            } else {
-                this.hdModal = false;
-            }
-        },
-        indexMethod(index) {
-            let start = (this.pageNo - 1) * this.pageSize;
-            return start + index + 1;
-        },
-        getXzqh(row) {
-            return getDicTab("xzqh", row.xzqh);
-        },
-        getBmbm(row) {
-            return getDicTab("bmbm", row.bm);
-        },
-        formatterDatehdsj(row) {
-            return formatDate(row.hdsj, "yyyy-MM-dd");
-        },
-        formatterDatehysj(row) {
-            return formatDate(row.hysj, "yyyy-MM-dd");
-        },
-        formatterDatelrsj(row) {
-            return formatDate(row.lrsj, "yyyy-MM-dd");
-        },
-        formInit_hy() {
-            let nowDate = new Date().getTime();
-            this.hyForm.lrsj = nowDate;
-            this.hyForm.bm = this.$store.state.user.user.uUser.bmbm;
-            this.hyForm.xzqh = this.$store.state.user.user.uUser.xzqh;
-            this.hyForm.lrr = this.$store.state.user.user.uUser.nickname;
-        },
-        formInit_hd() {
-            let nowDate = new Date().getTime();
-            this.hdForm.lrsj = nowDate;
-            this.hdForm.bm = this.$store.state.user.user.uUser.bmbm;
-            this.hdForm.xzqh = this.$store.state.user.user.uUser.xzqh;
-            this.hdForm.lrr = this.$store.state.user.user.uUser.nickname;
-        },
-        CurrentChange(val) {
-            this.pageNo = val;
-            switch (1 * this.lx) {
-                case 0:
-                    this.search_query(0);
-                    break;
-                case 1:
-                    this.search_query(1);
-                    break;
-                default:
-                    return false;
-            }
-        },
-        newAdd() {
-            if (this.lx == 0) {
-                this.hyModal = true;
-                this.textTit = "添加会议记录";
-                this.hyForm = {};
-                if (this.$refs.hyForms) {
-                    this.$refs.hyForms.resetFields();
-                }
-                this.formInit_hy();
-            } else {
-                this.hdModal = true;
-                this.textTit = "添加活动记录";
-                this.hdForm = {};
-                if (this.$refs.hdForms) {
-                    this.$refs.hdForms.resetFields();
-                }
-                this.formInit_hd();
-            }
-            this.chryoption = {
-                num: Date.now(),
-                chryList: []
-            };
-            this.qtryoption = {
-                num: Date.now(),
-                qtryList: ""
-            };
-        },
-        //查询列表
-        search_query(val) {
-            let obj = {
-                pageNo: this.pageNo,
-                pageSize: this.pageSize,
-                bm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
-            };
-            Number(this.lx) ? (obj.hdlx = 1) : (obj.hylx = 1);
-            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
-            this.seatch_month ? (obj.month = this.seatch_month) : "";
-            if (!this.lx) {
-                hybSearch(obj).then(res => {
-                    let data = res.data;
-                    if (data.success) {
-                        this.hyList = data.data.data;
-                        this.totalCount = data.data.totalCount;
-                    } else {
-                        this.hyList = [];
-                        this.totalCount = 0;
-                        this.$message({
-                            type: "warning",
-                            message: data.msg
-                        });
-                    }
-                });
-            } else {
-                hdbSearch(obj).then(res => {
-                    let data = res.data;
-                    if (data.success) {
-                        this.hdList = data.data.data;
-                        this.totalCount = data.data.totalCount;
-                    } else {
-                        this.hdList = [];
-                        this.totalCount = 0;
-                        this.$message({
-                            type: "warning",
-                            message: data.msg
-                        });
-                    }
-                });
-            }
-        },
-        //编辑
-        Edit(row) {
-            this.textTit = "编辑";
-            if (this.lx == 0) {
-                this.hyModal = true;
-                if (this.$refs.hyForms) {
-                    this.$refs.hyForms.resetFields();
-                }
-                this.hyForm = Object.assign({}, row);
-                this.chryoption = Object.assign({}, this.chryoption, {
-                    num: Date.now(),
-                    chryList: row.chryList
-                });
-                this.qtryoption = Object.assign({}, this.qtryoption, {
-                    num: Date.now(),
-                    qtryList: row.qtry
-                });
-            } else if (this.lx == 1) {
-                this.hdModal = true;
-                if (this.$refs.hdForms) {
-                    this.$refs.hdForms.resetFields();
-                }
-                this.hdForm = Object.assign({}, row);
-                this.chryoption = Object.assign({}, this.chryoption, {
-                    num: Date.now(),
-                    chryList: row.chryList
-                });
-                this.qtryoption = Object.assign({}, this.qtryoption, {
-                    num: Date.now(),
-                    qtryList: row.qtry
-                });
-            }
-        },
-        btn_save() {
-            let _this = this;
-            if (this.lx == 0) {
-                this.$refs.hyForms.validate(valid => {
-                    if (valid) {
-                        let obj = Object.assign({}, _this.hyForm);
-                        obj.lrrId = _this.$store.state.user.user.uUser.id;
-                        obj.chryList = _this.chooseList;
-                        obj.qtry = _this.elseList;
-                        obj.hylx = 1;
-                        let url = "";
-                        if (!obj.id) {
-                            url = "add";
-                            hybSave(url, obj).then(res => {
-                                let data = res.data;
-                                if (data.success) {
-                                    _this.$message({
-                                        type: "success",
-                                        message: data.msg
-                                    });
-                                    delete this.hyForm.id;
-                                    _this.search_query(0);
-                                } else {
-                                    _this.$message({
-                                        type: "danger",
-                                        message: data.msg
-                                    });
-                                }
-                            });
-                        } else {
-                            url = "update";
-                            hybSave(url, obj).then(res => {
-                                let data = res.data;
-                                if (data.success) {
-                                    _this.$message({
-                                        type: "success",
-                                        message: data.msg
-                                    });
-                                    _this.search_query(0);
-                                } else {
-                                    _this.$message({
-                                        type: "danger",
-                                        message: data.msg
-                                    });
-                                }
-                            });
-                        }
-                        _this.btn_cancel();
-                        _this.chooseList = [];
-                        _this.elseList = "";
-                    }
-                });
-            } else {
-                this.$refs.hdForms.validate(valid => {
-                    if (valid) {
-                        let obj = Object.assign({}, _this.hdForm);
-                        obj.chryList = _this.chooseList;
-                        obj.qtry = _this.elseList;
-                        obj.hdlx = 1;
-                        let url = "";
-                        if (!obj.id) {
-                            url = "add";
-                            hdbSave(url, obj).then(res => {
-                                let data = res.data;
-                                if (data.success) {
-                                    _this.$message({
-                                        type: "success",
-                                        message: data.msg
-                                    });
-                                    delete this.hdForm.id;
-                                    _this.search_query(1);
-                                } else {
-                                    _this.$message({
-                                        type: "danger",
-                                        message: data.msg
-                                    });
-                                }
-                            });
-                        } else {
-                            url = "update";
-                            hdbSave(url, obj).then(res => {
-                                let data = res.data;
-                                if (data.success) {
-                                    _this.$message({
-                                        type: "success",
-                                        message: data.msg
-                                    });
-                                    _this.search_query(1);
-                                } else {
-                                    _this.$message({
-                                        type: "danger",
-                                        message: data.msg
-                                    });
-                                }
-                            });
-                        }
-                    }
-                    _this.btn_cancel();
-                    _this.chooseList = [];
-                    _this.elseList = "";
-                });
-            }
-        },
-        Del(row) {
-            this.$confirm("此操作将删除此条信息, 是否继续?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            })
-                .then(() => {
-                    let obj = {
-                        id: row.id
-                    };
-                    if (this.lx == 0) {
-                        hybDel(obj).then(res => {
-                            let data = res.data;
-                            if (data.success) {
-                                this.$message({
-                                    message: data.msg,
-                                    type: "success"
-                                });
-                                this.search_query(0);
-                            } else {
-                                this.$message({
-                                    message: data.msg,
-                                    type: "warning"
-                                });
-                            }
-                        });
-                    } else {
-                        hdbDel(obj).then(res => {
-                            let data = res.data;
-                            if (data.success) {
-                                this.$message({
-                                    message: data.msg,
-                                    type: "success"
-                                });
-                                this.search_query(1);
-                            } else {
-                                this.$message({
-                                    message: data.msg,
-                                    type: "warning"
-                                });
-                            }
-                        });
-                    }
-                })
-                .catch(() => {
-                    this.$message({
-                        type: "info",
-                        message: "已取消删除"
-                    });
-                });
-        },
-        //上传
-        colseTog(val) {
-            this.accessoryModalInt = val;
-        },
-        chileFile(val) {
-            let zd = val.zdName;
-            this.hyForm[zd] = val.newSrcstr;
-        },
-        fileClick(val) {
-            this.accessoryModalInt = true;
-            this.textTitFile = "附件";
-            this.fileSrc = {
-                num: Math.random(),
-                fileStr: this.hyForm[val],
-                zdName: val
-            };
+    applyClick(row) {
+      this.applyXg = false;
+      this.applyCode = Object.assign(
+        {},
+        {
+          num: Math.random(),
+          code: row.code,
+          sqzt: row.sqzt
         }
+      );
     },
-    mounted() {
-        this.lxOptions = doCreate("zzlx");
-        this.ndoptions = doCreate("nd");
-        this.bmoptions = doCreate("bmbm");
-        this.xzqhoptions = doCreate("xzqh");
-        this.month = doCreate("month");
+    //切换活动会议类型
+    handleClick(tab) {
+      if (tab.name == "first") {
         this.lx = 0;
         this.search_query(0);
+      } else if (tab.name == "second") {
+        this.lx = 1;
+        this.search_query(1);
+      }
+    },
+    //接受参会人组件
+    elseStr(val) {
+      this.elseList = "";
+      this.elseList = val;
+    },
+    choList(val) {
+      this.chooseList = [];
+      this.chooseList = val;
+    },
+    btn_cancel() {
+      if (this.lx == 0) {
+        this.hyModal = false;
+      } else {
+        this.hdModal = false;
+      }
+    },
+    indexMethod(index) {
+      let start = (this.pageNo - 1) * this.pageSize;
+      return start + index + 1;
+    },
+    getXzqh(row) {
+      return getDicTab("xzqh", row.xzqh);
+    },
+    getBmbm(row) {
+      return getDicTab("bmbm", row.bm);
+    },
+    formatterDatehdsj(row) {
+      return formatDate(row.hdsj, "yyyy-MM-dd");
+    },
+    formatterDatehysj(row) {
+      return formatDate(row.hysj, "yyyy-MM-dd");
+    },
+    formatterDatelrsj(row) {
+      return formatDate(row.lrsj, "yyyy-MM-dd");
+    },
+    formInit_hy() {
+      let nowDate = new Date().getTime();
+      this.hyForm.lrsj = nowDate;
+      this.hyForm.bm = this.$store.state.user.user.uUser.bmbm;
+      this.hyForm.xzqh = this.$store.state.user.user.uUser.xzqh;
+      this.hyForm.lrr = this.$store.state.user.user.uUser.nickname;
+    },
+    formInit_hd() {
+      let nowDate = new Date().getTime();
+      this.hdForm.lrsj = nowDate;
+      this.hdForm.bm = this.$store.state.user.user.uUser.bmbm;
+      this.hdForm.xzqh = this.$store.state.user.user.uUser.xzqh;
+      this.hdForm.lrr = this.$store.state.user.user.uUser.nickname;
+    },
+    CurrentChange(val) {
+      this.pageNo = val;
+      switch (1 * this.lx) {
+        case 0:
+          this.search_query(0);
+          break;
+        case 1:
+          this.search_query(1);
+          break;
+        default:
+          return false;
+      }
+    },
+    newAdd() {
+        this.activeShow = true;
+      if (this.lx == 0) {
+        this.hyModal = true;
+        this.textTit = "添加会议记录";
+        this.hyForm = {};
+        if (this.$refs.hyForms) {
+          this.$refs.hyForms.resetFields();
+        }
+        this.formInit_hy();
+      } else {
+        this.hdModal = true;
+        this.textTit = "添加活动记录";
+        this.hdForm = {};
+        if (this.$refs.hdForms) {
+          this.$refs.hdForms.resetFields();
+        }
+        this.formInit_hd();
+      }
+      this.chryoption = {
+        num: Date.now(),
+        chryList: []
+      };
+      this.qtryoption = {
+        num: Date.now(),
+        qtryList: ""
+      };
+    },
+    //查询列表
+    search_query(val) {
+      let obj = {
+        pageNo: this.pageNo,
+        pageSize: this.pageSize,
+        bm: this.$store.state.user.user.uUser.bmbm,
+        xzqh: this.$store.state.user.user.uUser.xzqh
+      };
+      Number(this.lx) ? (obj.hdlx = 1) : (obj.hylx = 1);
+      this.seatch_nd ? (obj.year = this.seatch_nd) : "";
+      this.seatch_month ? (obj.month = this.seatch_month) : "";
+      if (!this.lx) {
+        hybSearch(obj).then(res => {
+          let data = res.data;
+          if (data.success) {
+            this.hyList = data.data.data;
+            this.totalCount = data.data.totalCount;
+          } else {
+            this.hyList = [];
+            this.totalCount = 0;
+            this.$message({
+              type: "warning",
+              message: data.msg
+            });
+          }
+        });
+      } else {
+        hdbSearch(obj).then(res => {
+          let data = res.data;
+          if (data.success) {
+            this.hdList = data.data.data;
+            this.totalCount = data.data.totalCount;
+          } else {
+            this.hdList = [];
+            this.totalCount = 0;
+            this.$message({
+              type: "warning",
+              message: data.msg
+            });
+          }
+        });
+      }
+    },
+    //编辑
+    Edit(row) {
+      if (row.sqzt == "3") {
+        this.textTit = "编辑";
+        this.activeShow = true;
+      } else {
+        this.textTit = "查看";
+        this.activeShow = false;
+      }
+      if (this.lx == 0) {
+        this.hyModal = true;
+        if (this.$refs.hyForms) {
+          this.$refs.hyForms.resetFields();
+        }
+
+        this.hyForm = Object.assign({}, row);
+        this.chryoption = Object.assign({}, this.chryoption, {
+          num: Date.now(),
+          chryList: row.chryList
+        });
+        this.qtryoption = Object.assign({}, this.qtryoption, {
+          num: Date.now(),
+          qtryList: row.qtry
+        });
+      } else if (this.lx == 1) {
+        this.hdModal = true;
+        if (this.$refs.hdForms) {
+          this.$refs.hdForms.resetFields();
+        }
+        this.hdForm = Object.assign({}, row);
+        this.chryoption = Object.assign({}, this.chryoption, {
+          num: Date.now(),
+          chryList: row.chryList
+        });
+        this.qtryoption = Object.assign({}, this.qtryoption, {
+          num: Date.now(),
+          qtryList: row.qtry
+        });
+      }
+    },
+    btn_save() {
+      let _this = this;
+      if (this.lx == 0) {
+        this.$refs.hyForms.validate(valid => {
+          if (valid) {
+            let obj = Object.assign({}, _this.hyForm);
+            obj.lrrId = _this.$store.state.user.user.uUser.id;
+            obj.chryList = _this.chooseList;
+            obj.qtry = _this.elseList;
+            obj.hylx = 1;
+            obj.sqzt = "1";
+            let url = "";
+            if (!obj.id) {
+              url = "add";
+              hybSave(url, obj).then(res => {
+                let data = res.data;
+                if (data.success) {
+                  _this.$message({
+                    type: "success",
+                    message: data.msg
+                  });
+                  delete this.hyForm.id;
+                  _this.search_query(0);
+                } else {
+                  _this.$message({
+                    type: "danger",
+                    message: data.msg
+                  });
+                }
+              });
+            } else {
+              url = "update";
+              hybSave(url, obj).then(res => {
+                let data = res.data;
+                if (data.success) {
+                  _this.$message({
+                    type: "success",
+                    message: data.msg
+                  });
+                  _this.search_query(0);
+                } else {
+                  _this.$message({
+                    type: "danger",
+                    message: data.msg
+                  });
+                }
+              });
+            }
+            _this.btn_cancel();
+            _this.chooseList = [];
+            _this.elseList = "";
+          }
+        });
+      } else {
+        this.$refs.hdForms.validate(valid => {
+          if (valid) {
+            let obj = Object.assign({}, _this.hdForm);
+            obj.chryList = _this.chooseList;
+            obj.qtry = _this.elseList;
+            obj.hdlx = 1;
+            obj.sqzt = "1";
+            let url = "";
+            if (!obj.id) {
+              url = "add";
+              hdbSave(url, obj).then(res => {
+                let data = res.data;
+                if (data.success) {
+                  _this.$message({
+                    type: "success",
+                    message: data.msg
+                  });
+                  delete this.hdForm.id;
+                  _this.search_query(1);
+                } else {
+                  _this.$message({
+                    type: "danger",
+                    message: data.msg
+                  });
+                }
+              });
+            } else {
+              url = "update";
+              hdbSave(url, obj).then(res => {
+                let data = res.data;
+                if (data.success) {
+                  _this.$message({
+                    type: "success",
+                    message: data.msg
+                  });
+                  _this.search_query(1);
+                } else {
+                  _this.$message({
+                    type: "danger",
+                    message: data.msg
+                  });
+                }
+              });
+            }
+          }
+          _this.btn_cancel();
+          _this.chooseList = [];
+          _this.elseList = "";
+        });
+      }
+    },
+    Del(row) {
+      this.$confirm("此操作将删除此条信息, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          let obj = {
+            id: row.id
+          };
+          if (this.lx == 0) {
+            hybDel(obj).then(res => {
+              let data = res.data;
+              if (data.success) {
+                this.$message({
+                  message: data.msg,
+                  type: "success"
+                });
+                this.search_query(0);
+              } else {
+                this.$message({
+                  message: data.msg,
+                  type: "warning"
+                });
+              }
+            });
+          } else {
+            hdbDel(obj).then(res => {
+              let data = res.data;
+              if (data.success) {
+                this.$message({
+                  message: data.msg,
+                  type: "success"
+                });
+                this.search_query(1);
+              } else {
+                this.$message({
+                  message: data.msg,
+                  type: "warning"
+                });
+              }
+            });
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    //上传
+    colseTog(val) {
+      this.accessoryModalInt = val;
+    },
+    chileFile(val) {
+      let zd = val.zdName;
+      this.hyForm[zd] = val.newSrcstr;
+    },
+    fileClick(val) {
+      this.accessoryModalInt = true;
+      this.textTitFile = "附件";
+      this.fileSrc = {
+        num: Math.random(),
+        fileStr: this.hyForm[val],
+        zdName: val
+      };
     }
+  },
+  mounted() {
+    this.lxOptions = doCreate("zzlx");
+    this.ndoptions = doCreate("nd");
+    this.bmoptions = doCreate("bmbm");
+    this.xzqhoptions = doCreate("xzqh");
+    this.month = doCreate("month");
+    this.lx = 0;
+    this.search_query(0);
+  }
 };
 </script>
 <style lang="scss">
 .dzzdfwhzzjl {
-    .el-tabs {
-        .el-tabs__header {
-            padding: 0;
-            position: relative;
-            margin: 0;
-            .el-tabs__item {
-                text-align: center;
-                min-width: 110px;
-            }
-        }
-        .el-tabs__content {
-            padding: 0;
-            min-height: 600px;
-        }
+  .el-tabs {
+    .el-tabs__header {
+      padding: 0;
+      position: relative;
+      margin: 0;
+      .el-tabs__item {
+        text-align: center;
+        min-width: 110px;
+      }
     }
+    .el-tabs__content {
+      padding: 0;
+      min-height: 600px;
+    }
+  }
 }
 </style>
 

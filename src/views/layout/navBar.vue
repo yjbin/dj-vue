@@ -1,7 +1,7 @@
 <template>
   <div class="navHead">
     <span class="headlogo_1">
-      <img src="../../assets/images/logoPic.png" alt="">
+      <img src="../../assets/images/logoPic.gif" alt="">
     </span>
     <span class="headName">
       <img src="../../assets/images/logo.png" alt="">
