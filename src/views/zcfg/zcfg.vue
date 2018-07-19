@@ -40,7 +40,7 @@
                     <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="name" label="名称" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="address" label="操作" width="300">
+                    <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
                             <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
@@ -155,9 +155,11 @@
             <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
 
         </div>
-        <div v-show="!applyXg">
-            <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
-        </div>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>  
     </div>
 </template>
 <script>
@@ -237,6 +239,7 @@ export default {
         fileAdd() {
             this.newModal = true;
             this.textTit = "新增";
+            this.activeShow = true;
             this.editObj = {};
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
