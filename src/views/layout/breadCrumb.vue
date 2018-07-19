@@ -4,7 +4,8 @@
       <!-- <img v-if="item.meta&&item.meta.icon" :src="'../../../static/sliderBar/'+item.meta.icon[1]"> -->
       <i class="el-icon-document" v-if="item.meta&&item.meta.icon"></i>
       <span v-if='item.redirect==="noredirect"||index==breadList.length-1' class="no-redirect">{{item.meta.title}}</span>
-      <router-link v-else :to="item.redirect||item.path" tag="span">{{item.meta.title}}</router-link>
+      <!-- <router-link v-else :to="item.redirect||item.path" tag="span">{{item.meta.title}}</router-link> -->
+      <span  v-else  tag="span">{{item.meta.title}}</span>
     </el-breadcrumb-item>
   </el-breadcrumb>
 </template>

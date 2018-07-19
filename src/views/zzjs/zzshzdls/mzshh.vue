@@ -2,20 +2,20 @@
   <div class="dfsj">
     <el-form :inline="true" class="demo-form-inline">
       <el-form-item label="年度">
-            <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
-                <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="月份">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
-                <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
-                </el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="参会人员">
-            <el-input placeholder="参会人员" prefix-icon="el-icon-search" v-model.trim="seatch_chry"></el-input>
-        </el-form-item>
+        <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
+          <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="月份">
+        <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+          <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="参会人员">
+        <el-input placeholder="参会人员" prefix-icon="el-icon-search" v-model.trim="seatch_chry"></el-input>
+      </el-form-item>
       <el-form-item>
         <button class="topQuery" @click="search_query">搜索</button>
         <button class="topQuery" @click="newAdd">添加记录</button>
@@ -146,16 +146,25 @@
               </el-row>
               <el-row>
                 <el-col :span="20" :offset="3">
-                  <el-button size="small" type="success" @click="fileClick('hqyt')">会前学习研讨</el-button>
-                  <el-button size="small" type="success" @click="fileClick('zqyy')">征求意见</el-button>
-                  <el-button size="small" type="success" @click="fileClick('txth')">谈心谈话</el-button>
-                  <el-button size="small" type="success" @click="fileClick('jccl')">领导班子对照检查材料</el-button>
+                  <el-form-item>
+                    <el-button size="small" type="success" @click="fileClick('hqyt')">会前学习研讨</el-button>
+                    <el-button size="small" type="success" @click="fileClick('zqyy')">征求意见</el-button>
+                    <el-button size="small" type="success" @click="fileClick('txth')">谈心谈话</el-button>
+                  </el-form-item>
                 </el-col>
               </el-row>
               <el-row>
                 <el-col :span="20" :offset="3">
                   <el-form-item>
-                    <el-button size="small" type="success" @click="fileClick('hyzp')">会议照片</el-button>
+                    <el-button size="small" type="success" @click="fileClick('jccl')">领导班子对照检查材料</el-button>
+                    <el-button size="small" type="success" @click="fileClick('zgfa')">整改方案</el-button>
+                    <el-button size="small" type="success" @click="fileClick('hyfa')">会议方案</el-button>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="20" :offset="3">
+                  <el-form-item>
                     <el-button size="small" type="success" @click="fileClick('zgfa')">整改方案</el-button>
                     <el-button size="small" type="success" @click="fileClick('hyfa')">会议方案</el-button>
                   </el-form-item>
@@ -195,7 +204,7 @@ export default {
         return {
             seatch_year: "",
             seatch_month: "",
-            seatch_chry:"",
+            seatch_chry: "",
             textTit: "",
             newModal: false,
             pageModal: false,
@@ -221,26 +230,26 @@ export default {
             upShowhide: true,
             textTitFile: "",
             fileSrc: "",
-            chooseList:[],
-            elseList:"",
-            chryoption:{
-              num:Math.random(),
-              chryList:[]
+            chooseList: [],
+            elseList: "",
+            chryoption: {
+                num: Math.random(),
+                chryList: []
             },
-            qtryoption:{
-                num:Math.random(),
-                qtryList:""
-            },
+            qtryoption: {
+                num: Math.random(),
+                qtryList: ""
+            }
         };
     },
     methods: {
-        elseStr(val){
-          this.elseList ="";
-          this.elseList = val;
+        elseStr(val) {
+            this.elseList = "";
+            this.elseList = val;
         },
-        choList(val){
-          this.chooseList = [];
-          this.chooseList = val;
+        choList(val) {
+            this.chooseList = [];
+            this.chooseList = val;
         },
         btn_cancel() {
             this.newModal = false;
@@ -282,25 +291,25 @@ export default {
             }
             this.formInit();
             this.chryoption = {
-              num:Date.now(),
-              chryList:[]
+                num: Date.now(),
+                chryList: []
             };
             this.qtryoption = {
-                num:Date.now(),
-                qtryList:""
+                num: Date.now(),
+                qtryList: ""
             };
         },
         search_query() {
             let obj = {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
-                hylx : 1,
+                hylx: 1,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh
             };
-            this.seatch_year ? obj.year = this.seatch_year : "";
-            this.seatch_chry? obj.chry = this.seatch_chry : "";
-            this.seatch_month ? obj.month = this.seatch_month : "";
+            this.seatch_year ? (obj.year = this.seatch_year) : "";
+            this.seatch_chry ? (obj.chry = this.seatch_chry) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             shykSearch(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -327,13 +336,13 @@ export default {
             // this.chryoption = row.chryList;
             // this.qtryoption = row.qtry;
             this.chryoption = Object.assign({}, this.chryoption, {
-              num:Date.now(),
-              chryList:row.chryList
-            })
+                num: Date.now(),
+                chryList: row.chryList
+            });
             this.qtryoption = Object.assign({}, this.qtryoption, {
-                num:Date.now(),
-                qtryList:row.qtry
-            })
+                num: Date.now(),
+                qtryList: row.qtry
+            });
         },
         btn_save() {
             let _this = this;

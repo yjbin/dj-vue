@@ -145,7 +145,7 @@ export const constantRouterMap = [{
     name: 'home',
     meta: {
       title: '首页',
-    }
+    }, children: []
   }]
 },
 ]

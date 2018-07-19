@@ -224,6 +224,11 @@ export default {
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
+            if (row.zt == "2") {
+                this.activeShow = true;
+            } else {
+                this.activeShow = false;
+            }
             let obj = {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,

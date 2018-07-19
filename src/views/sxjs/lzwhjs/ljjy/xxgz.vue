@@ -37,7 +37,7 @@
                 <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="xxzt" label="信息主题" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="bsr" label="报送人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="bssj" label="报送时间" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="bssj" label="报送时间" :formatter="sjDic" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
                         <el-button size="mini" type="primary" @click="fileEdit(scope.row)">编辑</el-button>
@@ -188,6 +188,9 @@ export default {
         bmbmDic(row) {
             return getDicTab("bmbm", row.bm);
         },
+        sjDic(row) {
+            return formatDate( row.bssj,"yyyy-MM-dd");
+        },
         btn_cancel() {
             this.newModal = false;
         },
@@ -259,7 +262,7 @@ export default {
                 xzqh: this.$store.state.user.user.uUser.xzqh
             };
             this.seatch_xxzt ? (obj.xxzt = this.seatch_xxzt) : "";
-            this.seatch_nd ? (obj.nd = this.seatch_nd) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             this.seatch_bsr ? (obj.bsr = this.seatch_bsr) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;

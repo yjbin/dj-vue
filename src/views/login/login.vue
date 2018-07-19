@@ -127,10 +127,10 @@ export default {
           for (var i = 0; i < arr.length; i++) {
             var arr2 = arr[i].split("=");
             if (arr2[0] == name) {
+              this.checked = true;
               this.loginForm.password = arr2[1]; //找到所需要的信息返回出来
             }
           }
-          this.checked = true;
         } else {
           return;
         }

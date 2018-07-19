@@ -1,11 +1,11 @@
 <template>
-  <el-menu :class="['sideBar',{oneLevel:oneLevel}]" unique-opened :collapse="isCollapse" :default-active="$route.path" background-color="#343434" text-color="#fff">
-    <el-menu-item index="" class="sideBar_title" @click="collapse">
-      <i class="el-icon-menu"></i>
-      <span style="color:#fff">功能菜单</span>
-    </el-menu-item>
-    <sidebar-item :routes="permission_routers"></sidebar-item>
-  </el-menu>
+    <el-menu :class="['sideBar',{oneLevel:oneLevel}]" unique-opened :collapse="isCollapse" :default-active="$route.path" background-color="#343434" text-color="#fff">
+        <el-menu-item index="" class="sideBar_title titleClass" @click="collapse">
+            <i class="el-icon-menu"></i>
+            <span style="color:#fff">功能菜单</span>
+        </el-menu-item>
+        <sidebar-item :routes="permission_routers"></sidebar-item>
+    </el-menu>
 </template>
 
 <script>
@@ -30,25 +30,12 @@ export default {
     }
 };
 </script>
-<style lang="scss" scoped>
-.sideBar {
-    transition: all 0.3s;
-}
-.oneLevel {
-    width: 200px;
-    .el-menu-item span {
-        height: auto;
-        width: auto;
-        overflow: hidden;
-        visibility: visible;
-        display: inline-block;
-    }
-}
-</style>
+
 <style lang="scss">
 .sideBar {
     .sideBar_title {
-        color: #307ecc !important;
+        // color: #307ecc !important;
+        background-color: #d11523 !important;
         border-bottom: 1px solid #fff;
 
         i {
@@ -64,6 +51,25 @@ export default {
     .el-menu-item.is-active {
         background-color: #000 !important;
         color: #fff !important;
+    }
+}
+</style>
+<style lang="scss" scoped>
+.sideBar {
+    transition: all 0.3s;
+    .titleClass {
+        background-color: #d11523 !important;
+    }
+}
+
+.oneLevel {
+    width: 200px;
+    .el-menu-item span {
+        height: auto;
+        width: auto;
+        overflow: hidden;
+        visibility: visible;
+        display: inline-block;
     }
 }
 </style>

@@ -41,7 +41,7 @@
                 <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
                         <el-button size="mini" type="primary" @click="fileEdit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="listDel(scope.row)" :disabled="(scope.row.by3=='1'?true:false)">删除</el-button>
+                        <el-button size="mini" type="danger" @click="listDel(scope.row)" :disabled="(scope.row.zt=='1'?false:true)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -247,7 +247,7 @@ export default {
             this.bm_model = false;
         },
         bmnodeClick(data) {
-            this.bmbm = data.bm;
+            this.bmbm = data.xzqhBm;
             this.editObj.jsBm = data.name;
             this.xzqh_model = false;
             this.bm_model = false;
@@ -260,18 +260,20 @@ export default {
             let _this = this;
             if (data) {
                 if (data == "xzqh") {
-                    this.xzqh_model = true;
+                    
                     this.model_Tit = "行政区划";
                     treeQuery({ bm: this.userXzqh }).then(res => {
                         let data = res.data;
+                        this.xzqh_model = true;
                         if (data.success) {
+                            
                             _this.xzqh_data = data.data;
                             // _this.$refs.multipleTable.toggleRowSelection(_this.xzqh,true);
                         }
                     });
                 } else if (data == "bm") {
                     if (this.editObj.jsXzqh) {
-                        this.bm_model = true;
+                        
                         this.model_Tit = "部门编码";
                         this.bmData();
                     } else {
@@ -288,6 +290,7 @@ export default {
         bmData() {
             treeQueryBm({ xzqh: this.xzqh }).then(res => {
                 let data = res.data;
+                this.bm_model = true;
                 if (data.success) {
                     this.bm_data = data.data;
                 }
@@ -308,7 +311,17 @@ export default {
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
+            if (row.zt == "1") {
+                this.activeShow = true;
+            } else {
+                this.activeShow = false;
+            }
+            this.xzqh = row.jsXzqh;
+            this.bmbm = row.jsBm;
             this.editObj = Object.assign({}, row);
+            this.editObj.jsXzqh = getDicTab("xzqh", this.editObj.jsXzqh);
+            this.editObj.jsBm = getDicTab("bmbm", this.editObj.jsBm);
+
         },
         listDel(row) {
             this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
@@ -376,8 +389,8 @@ export default {
                     let _this = this;
                     let obj = Object.assign({}, this.editObj);
                     obj.lrrId = this.$store.state.user.user.uUser.id;
-                    this.editObj.jsXzqh = this.xzqh;
-                    this.editObj.jsBm = this.bmbm;
+                    obj.jsXzqh = this.xzqh;
+                    obj.jsBm = this.bmbm;
                     if (this.editObj.id) {
                         dateUpdate(obj).then(res => {
                             let data = res.data;
