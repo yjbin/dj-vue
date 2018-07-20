@@ -154,9 +154,11 @@
             <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
 
         </div>
-        <div v-show="!applyXg">
-            <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
-        </div>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
 </template>
 <script>

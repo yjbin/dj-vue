@@ -41,7 +41,7 @@
                     <el-table-column prop="zzdw" label="组织单位" show-overflow-tooltip></el-table-column>
                     
                     <el-table-column prop="sfbb" label="是否报备" :formatter="sfbbDicToWord" show-overflow-tooltip></el-table-column>
-                     <el-table-column label="操作" width="250">
+                    <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
                             <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
@@ -209,7 +209,7 @@ import {
 export default {
     components: {
         accessoryModel,
-         applyrModifying
+        applyrModifying
     },
     data() {
         const validNames = (rule, value, callback) => {

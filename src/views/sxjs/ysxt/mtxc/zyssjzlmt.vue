@@ -1,137 +1,149 @@
 <template>
     <div class="zlmedia">
-        <el-form :inline="true" class="demo-form-inline">
-            <el-form-item label="媒体级别">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_mtjb" clearable>
-                    <el-option v-for="(item,index) in mtjb" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="媒体名称">
-                <el-input placeholder="请输入..." prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <button class="topQuery" @click="search_query">搜索</button>
-                <button class="topQuery" @click="newAdd">添加记录</button>
-            </el-form-item>
-        </el-form>
-        <div class="capit-tit">
-            <el-row>
-                <el-col :span="12">
-                    <div class="user-left">
-                        <span class="capit-content">中央省市级主流媒体</span>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="capit-list">
-            <el-table :data="zlmedialList" stripe border style="width: 100%">
-                <!-- <el-table-column type="selection"></el-table-column> -->
-                <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-                <el-table-column prop="mtjb" label="媒体级别" :formatter="getDicTabmtjb" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="mtlx" label="媒体类型" :formatter="getDicTabmtlx" show-overflow-tooltip></el-table-column>   
-                <el-table-column prop="mtmc" label="媒体名称" show-overflow-tooltip></el-table-column>      
-                <el-table-column prop="fgsj" :formatter="formatterDatefgsj" label="发稿时间" show-overflow-tooltip></el-table-column>  
-                <el-table-column label="操作" width="150">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="Del(scope.row)" >删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div class="fr">
-                <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-                </el-pagination>
+      <div v-show="applyXg">
+          <el-form :inline="true" class="demo-form-inline">
+              <el-form-item label="媒体级别">
+                  <el-select suffix-icon="el-icon-date" v-model="seatch_mtjb" clearable>
+                      <el-option v-for="(item,index) in mtjb" :key="index" :label="item.label" :value="item.value">
+                      </el-option>
+                  </el-select>
+              </el-form-item>
+              <el-form-item label="媒体名称">
+                  <el-input placeholder="请输入..." prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
+              </el-form-item>
+              <el-form-item>
+                  <button class="topQuery" @click="search_query">搜索</button>
+                  <button class="topQuery" @click="newAdd">添加记录</button>
+              </el-form-item>
+          </el-form>
+          <div class="capit-tit">
+              <el-row>
+                  <el-col :span="12">
+                      <div class="user-left">
+                          <span class="capit-content">中央省市级主流媒体</span>
+                      </div>
+                  </el-col>
+              </el-row>
+          </div>
+          <div class="capit-list">
+              <el-table :data="zlmedialList" stripe border style="width: 100%">
+                  <!-- <el-table-column type="selection"></el-table-column> -->
+                  <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                  <el-table-column prop="mtjb" label="媒体级别" :formatter="getDicTabmtjb" show-overflow-tooltip></el-table-column>
+                  <el-table-column prop="mtlx" label="媒体类型" :formatter="getDicTabmtlx" show-overflow-tooltip></el-table-column>   
+                  <el-table-column prop="mtmc" label="媒体名称" show-overflow-tooltip></el-table-column>      
+                  <el-table-column prop="fgsj" :formatter="formatterDatefgsj" label="发稿时间" show-overflow-tooltip></el-table-column>  
+                  <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+              </el-table>
+              <div class="fr">
+                  <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                  </el-pagination>
+              </div>
+              <!-- 新建，编辑弹框 -->
+              <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" >          
+                  <el-form :inline="true" :model="zlmedialForm" ref="zlmedialForms" class="demo-form-inline" label-width="120px" :rules="zlmediarules">
+                      <el-row>
+                          <el-col :span="11">
+                              <el-form-item label="媒体级别" prop="mtjb">
+                                  <el-select v-model="zlmedialForm.mtjb" placeholder="请选择" style="width:100%">
+                                      <el-option v-for="(item,index) in mtjb" :key="index" :label="item.label" :value="item.value">
+                                      </el-option>
+                                  </el-select>
+                              </el-form-item>
+                          </el-col>
+                          <el-col :span="11" :offset="1">
+                              <el-form-item label="媒体类型" prop="mtlx">
+                                  <el-select v-model="zlmedialForm.mtlx" placeholder="请选择" style="width:100%">
+                                      <el-option v-for="(item,index) in mtlx" :key="index" :label="item.label" :value="item.value">
+                                      </el-option>
+                                  </el-select>
+                              </el-form-item>
+                          </el-col>
+                      </el-row>
+                      <el-row>
+                          <el-col :span="11">
+                            <el-form-item label="媒体名称" prop="mtmc">
+                                <el-input v-model.trim="zlmedialForm.mtmc" placeholder="媒体名称"></el-input>
+                              </el-form-item>
+                          </el-col>
+                          <el-col :span="11" :offset="1">
+                                <el-form-item label="发稿时间" prop="fgsj">
+                                <el-date-picker v-model="zlmedialForm.fgsj" type="date" value-format="timestamp" placeholder="发稿时间" ></el-date-picker>
+                              </el-form-item>
+                          </el-col>
+                      </el-row>
+                      <el-row>
+                          <el-col :span="23">
+                              <el-form-item label="发稿内容" prop="fgnr">
+                                  <el-input type="textarea" v-model.trim="zlmedialForm.fgnr"  :autosize="{ minRows: 5}" placeholder="发稿内容"></el-input>
+                              </el-form-item>
+                          </el-col>
+                      </el-row>
+                      <el-row>
+                          <el-col :span="11">
+                              <el-form-item label="行政区划" prop="xzqh">
+                                  <el-select v-model="zlmedialForm.xzqh" placeholder="请选择" style="width:100%" disabled>
+                                      <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                      </el-option>
+                                  </el-select>
+                              </el-form-item>
+                          </el-col>
+                          <el-col :span="11" :offset="1">
+                              <el-form-item label="部门科室" prop="bm">
+                                  <el-select v-model="zlmedialForm.bm" placeholder="请选择" style="width:100%" disabled>
+                                      <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
+                                      </el-option>
+                                  </el-select>
+                              </el-form-item>
+                          </el-col>
+                      </el-row>
+                      <el-row>
+                          <el-col :span="11">
+                              <el-form-item label="录入人" prop="lrr">
+                                  <el-input v-model="zlmedialForm.lrr" placeholder="录入人" :disabled="true"></el-input>
+                              </el-form-item>
+                          </el-col>
+                          <el-col :span="11" :offset="1">
+                              <el-form-item label="录入时间" prop="lrsj">
+                                  <el-date-picker v-model="zlmedialForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                              </el-form-item>
+                          </el-col>
+                      </el-row>
+                      <el-row>
+                          <el-col :span="20" :offset="3">
+                              <el-button size="small" type="success" @click="fileClick('fgtp')">上传图片</el-button>         
+                          </el-col>
+                      </el-row>
+                  </el-form>
+                  <div class="footerBox">
+                      <span slot="footer" class="dialog-footer">
+                          <button v-show="activeShow" class="save" @click="btn_save">保存</button>
+                          <button @click="btn_cancel" class="cancel">取消</button>
+                      </span>
+                  </div>
+                
+              </el-dialog>
+          </div>
+          <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+      </div>
+      <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
             </div>
-            <!-- 新建，编辑弹框 -->
-            <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" >          
-                <el-form :inline="true" :model="zlmedialForm" ref="zlmedialForms" class="demo-form-inline" label-width="120px" :rules="zlmediarules">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="媒体级别" prop="mtjb">
-                                <el-select v-model="zlmedialForm.mtjb" placeholder="请选择" style="width:100%">
-                                    <el-option v-for="(item,index) in mtjb" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="媒体类型" prop="mtlx">
-                                <el-select v-model="zlmedialForm.mtlx" placeholder="请选择" style="width:100%">
-                                    <el-option v-for="(item,index) in mtlx" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                           <el-form-item label="媒体名称" prop="mtmc">
-                               <el-input v-model.trim="zlmedialForm.mtmc" placeholder="媒体名称"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                              <el-form-item label="发稿时间" prop="fgsj">
-                              <el-date-picker v-model="zlmedialForm.fgsj" type="date" value-format="timestamp" placeholder="发稿时间" ></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="23">
-                            <el-form-item label="发稿内容" prop="fgnr">
-                                 <el-input type="textarea" v-model.trim="zlmedialForm.fgnr"  :autosize="{ minRows: 5}" placeholder="发稿内容"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="行政区划" prop="xzqh">
-                                <el-select v-model="zlmedialForm.xzqh" placeholder="请选择" style="width:100%" disabled>
-                                    <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="部门科室" prop="bm">
-                                <el-select v-model="zlmedialForm.bm" placeholder="请选择" style="width:100%" disabled>
-                                    <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="录入人" prop="lrr">
-                                <el-input v-model="zlmedialForm.lrr" placeholder="录入人" :disabled="true"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="录入时间" prop="lrsj">
-                                <el-date-picker v-model="zlmedialForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="20" :offset="3">
-                            <el-button size="small" type="success" @click="fileClick('fgtp')">上传图片</el-button>         
-                        </el-col>
-                    </el-row>
-                </el-form>
-                <div class="footerBox">
-                    <span slot="footer" class="dialog-footer">
-                        <button v-show="activeShow" class="save" @click="btn_save">保存</button>
-                        <button @click="btn_cancel" class="cancel">取消</button>
-                    </span>
-                </div>
-              
-            </el-dialog>
-        </div>
-        <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+      </transition>
     </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab } from "@/utils/config";
 import { formatDate } from "@/utils/data";
@@ -139,9 +151,12 @@ import { zlmediaSearch, zlmediaSave, zlmediaDel } from "@/api/sxjs/mtxc/zlmedia"
 export default {
   components: {
     accessoryModel,
+    applyrModifying
   },
   data() {
     return {
+      applyXg:true,
+      applyCode:{},
       seatch_mtjb: "",
       seatch_name: "",
       textTit: "",
@@ -172,6 +187,18 @@ export default {
     };
   },
   methods: {
+    btnBack(val) {
+        this.applyXg = val;
+        this.search_query();
+    },
+    applyClick(row) {
+        this.applyXg = false;
+        this.applyCode = Object.assign({},{
+            num: Math.random(),
+            code: row.code,
+            sqzt: row.sqzt
+        });
+    },
     btn_cancel() {
       this.newModal = false;
     },
@@ -202,6 +229,7 @@ export default {
     newAdd() {
       this.newModal = true;
       this.textTit = "添加记录";
+      this.activeShow = true;
       this.zlmedialForm = {};
       if (this.$refs.zlmedialForms) {
         this.$refs.zlmedialForms.resetFields();
@@ -234,7 +262,13 @@ export default {
     },
     Edit(row) {
       this.newModal = true;
-      this.textTit = "编辑";
+      if (row.sqzt == "3") {
+          this.textTit = "编辑";
+          this.activeShow = true;
+      } else {
+          this.textTit = "查看";
+          this.activeShow = false;
+      }
       if (this.$refs.zlmedialForms) {
         this.$refs.zlmedialForms.resetFields();
       }
@@ -246,6 +280,7 @@ export default {
         if (valid) {
           let obj = Object.assign({}, _this.zlmedialForm);
           obj.lrrId = _this.$store.state.user.user.uUser.id;
+          obj.sqzt = "1";
           let url = "";
           if (!obj.id) {
             url = "add";

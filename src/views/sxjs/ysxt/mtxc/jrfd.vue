@@ -1,145 +1,167 @@
 <template>
   <div class="jrfd">
-    <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="年度">
-        <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
-          <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <!-- <el-form-item label="查询条件">
-                <el-input placeholder="请输入..." prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
-            </el-form-item> -->
-      <el-form-item>
-        <button class="topQuery" @click="search_query">搜索</button>
-        <button class="topQuery" @click="newAdd">添加记录</button>
-      </el-form-item>
-    </el-form>
-    <div class="capit-tit">
-      <el-row>
-        <el-col :span="12">
-          <div class="user-left">
-            <span class="capit-content">今日汾东</span>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="capit-list">
-      <el-table :data="jrfdList" stripe border style="width: 100%">
-        <!-- <el-table-column type="selection"></el-table-column> -->
-        <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-        <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="tgsj" label="投稿时间" :formatter="formatterDatetgsj" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="tgr" label="投稿人" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="fgsj" :formatter="formatterDatefgsj" label="发稿时间" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作" width="150">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="fr">
-        <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-        </el-pagination>
-      </div>
-      <!-- 新建，编辑弹框 -->
-      <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-        <el-form :inline="true" :model="jrfdForm" ref="jrfdForms" class="demo-form-inline" label-width="120px" :rules="jrfdrules">
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="投稿时间" prop="tgsj">
-                <el-date-picker ref="tgDate" v-model="jrfdForm.tgsj" type="date" value-format="timestamp" placeholder="投稿时间" :picker-options="limitStartTime"></el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="投稿人" prop="tgr">
-                <el-input v-model.trim="jrfdForm.tgr" placeholder="投稿人"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="发稿时间" prop="fgsj">
-                <el-date-picker ref="fgDate" v-model="jrfdForm.fgsj" type="date" value-format="timestamp" placeholder="发稿时间" :picker-options="limitEndTime"></el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="年度" prop="year" >
-                <el-select v-model="jrfdForm.year" style="width:100%">
-                  <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="23">
-              <el-form-item label="投稿内容" prop="tgnr">
-                <el-input type="textarea" v-model.trim="jrfdForm.tgnr" :autosize="{ minRows: 5}" placeholder="投稿内容"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="23">
-              <el-form-item label="发稿内容" prop="fgnr">
-                <el-input type="textarea" v-model.trim="jrfdForm.fgnr" :autosize="{ minRows: 5}" placeholder="发稿内容"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="行政区划" prop="xzqh">
-                <el-select v-model="jrfdForm.xzqh" placeholder="请选择" style="width:100%" disabled>
-                  <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="部门科室" prop="bm">
-                <el-select v-model="jrfdForm.bm" placeholder="请选择" style="width:100%" disabled>
-                  <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="录入人" prop="lrr">
-                <el-input v-model="jrfdForm.lrr" placeholder="录入人" :disabled="true"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="录入时间" prop="lrsj">
-                <el-date-picker v-model="jrfdForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
+    <div v-show="applyXg">
+        <el-form :inline="true" class="demo-form-inline">
+        <el-form-item label="年度">
+            <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+            </el-option>
+            </el-select>
+        </el-form-item>
+        <!-- <el-form-item label="查询条件">
+                    <el-input placeholder="请输入..." prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
+                </el-form-item> -->
+        <el-form-item>
+            <button class="topQuery" @click="search_query">搜索</button>
+            <button class="topQuery" @click="newAdd">添加记录</button>
+        </el-form-item>
         </el-form>
-        <div class="footerBox">
-          <span slot="footer" class="dialog-footer">
-            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
-            <button @click="btn_cancel" class="cancel">取消</button>
-          </span>
+        <div class="capit-tit">
+        <el-row>
+            <el-col :span="12">
+            <div class="user-left">
+                <span class="capit-content">今日汾东</span>
+            </div>
+            </el-col>
+        </el-row>
         </div>
-
-      </el-dialog>
+        <div class="capit-list">
+        <el-table :data="jrfdList" stripe border style="width: 100%">
+            <!-- <el-table-column type="selection"></el-table-column> -->
+            <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+            <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="tgsj" label="投稿时间" :formatter="formatterDatetgsj" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="tgr" label="投稿人" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="fgsj" :formatter="formatterDatefgsj" label="发稿时间" show-overflow-tooltip></el-table-column>
+            <el-table-column label="操作" width="250">
+                <template slot-scope="scope">
+                    <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                    <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                    <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                    <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                    <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                    <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="fr">
+            <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+            </el-pagination>
+        </div>
+        <!-- 新建，编辑弹框 -->
+        <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+            <el-form :inline="true" :model="jrfdForm" ref="jrfdForms" class="demo-form-inline" label-width="120px" :rules="jrfdrules">
+            <el-row>
+                <el-col :span="11">
+                <el-form-item label="投稿时间" prop="tgsj">
+                    <el-date-picker ref="tgDate" v-model="jrfdForm.tgsj" type="date" value-format="timestamp" placeholder="投稿时间" :picker-options="limitStartTime"></el-date-picker>
+                </el-form-item>
+                </el-col>
+                <el-col :span="11" :offset="1">
+                <el-form-item label="投稿人" prop="tgr">
+                    <el-input v-model.trim="jrfdForm.tgr" placeholder="投稿人"></el-input>
+                </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="11">
+                <el-form-item label="发稿时间" prop="fgsj">
+                    <el-date-picker ref="fgDate" v-model="jrfdForm.fgsj" type="date" value-format="timestamp" placeholder="发稿时间" :picker-options="limitEndTime"></el-date-picker>
+                </el-form-item>
+                </el-col>
+                <el-col :span="11" :offset="1">
+                <el-form-item label="年度" prop="year" >
+                    <el-select v-model="jrfdForm.year" style="width:100%">
+                    <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                    </el-option>
+                    </el-select>
+                </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="23">
+                <el-form-item label="投稿内容" prop="tgnr">
+                    <el-input type="textarea" v-model.trim="jrfdForm.tgnr" :autosize="{ minRows: 5}" placeholder="投稿内容"></el-input>
+                </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="23">
+                <el-form-item label="发稿内容" prop="fgnr">
+                    <el-input type="textarea" v-model.trim="jrfdForm.fgnr" :autosize="{ minRows: 5}" placeholder="发稿内容"></el-input>
+                </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="11">
+                <el-form-item label="行政区划" prop="xzqh">
+                    <el-select v-model="jrfdForm.xzqh" placeholder="请选择" style="width:100%" disabled>
+                    <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                    </el-option>
+                    </el-select>
+                </el-form-item>
+                </el-col>
+                <el-col :span="11" :offset="1">
+                <el-form-item label="部门科室" prop="bm">
+                    <el-select v-model="jrfdForm.bm" placeholder="请选择" style="width:100%" disabled>
+                    <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
+                    </el-option>
+                    </el-select>
+                </el-form-item>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="11">
+                <el-form-item label="录入人" prop="lrr">
+                    <el-input v-model="jrfdForm.lrr" placeholder="录入人" :disabled="true"></el-input>
+                </el-form-item>
+                </el-col>
+                <el-col :span="11" :offset="1">
+                <el-form-item label="录入时间" prop="lrsj">
+                    <el-date-picker v-model="jrfdForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                </el-form-item>
+                </el-col>
+            </el-row>
+            </el-form>
+            <div class="footerBox">
+            <span slot="footer" class="dialog-footer">
+                <button v-show="activeShow" class="save" @click="btn_save">保存</button>
+                <button @click="btn_cancel" class="cancel">取消</button>
+            </span>
+            </div>
+        </el-dialog>
+        </div>
     </div>
+    <transition enter-active-class="animated zoomIn">
+        <div v-show="!applyXg">
+            <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+        </div>
+    </transition>
   </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { jrfdSearch, jrfdSave, jrfdDel } from "@/api/sxjs/mtxc/jrfd";
+import { validName } from "@/utils/validate";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying
     },
     data() {
+        const validNames = (rule, value, callback) => {
+            if (!validName(value)) {
+                callback(new Error("请输入正确的姓名~^~^~"));
+            } else {
+                callback();
+            }
+        };
         return {
+            applyXg:true,
+            applyCode:{},
             seatch_nd: "",
             seatch_name: "",
             textTit: "",
@@ -158,7 +180,7 @@ export default {
             jrfdrules: {
                 tgsj: [{ required: true, message: "不能为空" }],
                 tgnr: [{ required: true, message: "不能为空" }],
-                tgn: [{ required: true, message: "不能为空" }],
+                tgr: [{ required: true, validator:validNames }],
                 fgsj: [{ required: true, message: "不能为空" }],
                 fgnr: [{ required: true, message: "不能为空" }]
             },
@@ -181,6 +203,18 @@ export default {
         };
     },
     methods: {
+        btnBack(val) {
+            this.applyXg = val;
+            this.search_query();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = Object.assign({},{
+                num: Math.random(),
+                code: row.code,
+                sqzt: row.sqzt
+            });
+        },
         btn_cancel() {
             this.newModal = false;
         },
@@ -208,6 +242,7 @@ export default {
         newAdd() {
             this.newModal = true;
             this.textTit = "添加记录";
+            this.activeShow = true;
             this.jrfdForm = {};
             if (this.$refs.jrfdForms) {
                 this.$refs.jrfdForms.resetFields();
@@ -240,7 +275,13 @@ export default {
         },
         Edit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+            if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             if (this.$refs.jrfdForms) {
                 this.$refs.jrfdForms.resetFields();
             }
@@ -252,6 +293,7 @@ export default {
                 if (valid) {
                     let obj = Object.assign({}, _this.jrfdForm);
                     obj.lrrId = _this.$store.state.user.user.uUser.id;
+                    obj.sqzt = "1";
                     let url = "";
                     if (!obj.id) {
                         url = "add";
