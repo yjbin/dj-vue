@@ -1,155 +1,165 @@
 <template>
-  <div class="gwyc">
-    <el-form :inline="true" class="demo-form-inline">
-
-      <el-form-item label="车牌">
-        <el-input placeholder="车牌" prefix-icon="el-icon-search" v-model.trim="seatch_cp"></el-input>
-      </el-form-item>
-      <el-form-item label="驾驶人">
-        <el-input placeholder="驾驶人" prefix-icon="el-icon-search" v-model.trim="seatch_jsr"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <button class="topQuery" @click="search_query">搜索</button>
-        <button class="topQuery" @click="newAdd">添加记录</button>
-      </el-form-item>
-    </el-form>
-    <div class="capit-tit">
-      <el-row>
-        <el-col :span="12">
-          <div class="user-left">
-            <span class="capit-content">公务用车配置和使用</span>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="capit-list">
-      <el-table :data="gwycList" stripe border style="width: 100%">
-        <!-- <el-table-column type="selection"></el-table-column> -->
-        <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-        <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="cp" label="车牌" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="cx" label="车型" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="jsr" label="驾驶人" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="bbr" label="报备人" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="bbsj" :formatter="formatterDatebbsj" label="报备时间" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="bbsy" label="报备事由" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="xslx" label="行驶路线" show-overflow-tooltip></el-table-column>
-        <el-table-column label="操作" width="150">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="fr">
-        <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-        </el-pagination>
-      </div>
-      <!-- 新建，编辑弹框 -->
-      <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-        <el-form :inline="true" :model="gwycForm" ref="gwycForms" class="demo-form-inline" label-width="120px" :rules="zgflrules">
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="年度" prop="year">
-                <el-select v-model="gwycForm.year" placeholder="请选择" style="width:100%">
-                  <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="车牌" prop="cp">
-                <el-input v-model.trim="gwycForm.cp" placeholder="车牌"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="车型" prop="cx">
-                <el-input v-model.trim="gwycForm.cx" placeholder="车型"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="驾驶人" prop="jsr">
-                <el-input v-model.trim="gwycForm.jsr" placeholder="驾驶人"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="报备人" prop="bbr">
-                <el-input v-model.trim="gwycForm.bbr" placeholder="报备人"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="报备时间" prop="bbsj">
-                <el-date-picker v-model="gwycForm.bbsj" type="date" value-format="timestamp" placeholder="报备时间"></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="报备事由" prop="bbsy">
-                <el-input v-model.trim="gwycForm.bbsy" placeholder="报备事由"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="行驶路线" prop="xslx">
-                <el-input v-model.trim="gwycForm.xslx" placeholder="行驶路线"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="行政区划" prop="xzqh">
-                <el-select v-model="gwycForm.xzqh" placeholder="请选择" style="width:100%" disabled>
-                  <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="部门科室" prop="bm">
-                <el-select v-model="gwycForm.bm" placeholder="请选择" style="width:100%" disabled>
-                  <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="录入人" prop="lrr">
-                <el-input v-model="gwycForm.lrr" placeholder="录入人" :disabled="true"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="录入时间" prop="lrsj">
-                <el-date-picker v-model="gwycForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="20" :offset="3">
-              <el-button size="small" type="success" @click="fileClick('xsz')">行驶证附件</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-        <div class="footerBox">
-          <span slot="footer" class="dialog-footer">
-            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
-            <button @click="btn_cancel" class="cancel">取消</button>
-          </span>
+    <div class="gwyc">
+        <div v-show="applyXg">
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="车牌">
+                    <el-input placeholder="车牌" prefix-icon="el-icon-search" v-model.trim="seatch_cp"></el-input>
+                </el-form-item>
+                <el-form-item label="驾驶人">
+                    <el-input placeholder="驾驶人" prefix-icon="el-icon-search" v-model.trim="seatch_jsr"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <button class="topQuery" @click="search_query">搜索</button>
+                    <button class="topQuery" @click="newAdd">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span class="capit-content">公务用车配置和使用</span>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="capit-list">
+                <el-table :data="gwycList" stripe border style="width: 100%">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="cp" label="车牌" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="cx" label="车型" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="jsr" label="驾驶人" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bbr" label="报备人" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bbsj" :formatter="formatterDatebbsj" label="报备时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bbsy" label="报备事由" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xslx" label="行驶路线" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="fr">
+                    <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
+                </div>
+                <!-- 新建，编辑弹框 -->
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+                    <el-form :inline="true" :model="gwycForm" ref="gwycForms" class="demo-form-inline" label-width="120px" :rules="zgflrules">
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="年度" prop="year">
+                                    <el-select v-model="gwycForm.year" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="车牌" prop="cp">
+                                    <el-input v-model.trim="gwycForm.cp" placeholder="车牌"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="车型" prop="cx">
+                                    <el-input v-model.trim="gwycForm.cx" placeholder="车型"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="驾驶人" prop="jsr">
+                                    <el-input v-model.trim="gwycForm.jsr" placeholder="驾驶人"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="报备人" prop="bbr">
+                                    <el-input v-model.trim="gwycForm.bbr" placeholder="报备人"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="报备时间" prop="bbsj">
+                                    <el-date-picker v-model="gwycForm.bbsj" type="date" value-format="timestamp" placeholder="报备时间"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="报备事由" prop="bbsy">
+                                    <el-input v-model.trim="gwycForm.bbsy" placeholder="报备事由"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="行驶路线" prop="xslx">
+                                    <el-input v-model.trim="gwycForm.xslx" placeholder="行驶路线"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="行政区划" prop="xzqh">
+                                    <el-select v-model="gwycForm.xzqh" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="部门科室" prop="bm">
+                                    <el-select v-model="gwycForm.bm" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="录入人" prop="lrr">
+                                    <el-input v-model="gwycForm.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="录入时间" prop="lrsj">
+                                    <el-date-picker v-model="gwycForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="20" :offset="3">
+                                <el-button size="small" type="success" @click="fileClick('xsz')">行驶证附件</el-button>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
+                            <button @click="btn_cancel" class="cancel">取消</button>
+                        </span>
+                    </div>
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
-
-      </el-dialog>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
-    <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
-  </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab } from "@/utils/config";
 import { formatDate } from "@/utils/data";
@@ -160,10 +170,13 @@ import {
 } from "@/api/zfjs/lszhbxgdjshzzsfwt/gwyc";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying
     },
     data() {
         return {
+            applyXg: true,
+            applyCode: {},
             seatch_cp: "",
             seatch_jsr: "",
             textTit: "",
@@ -237,6 +250,7 @@ export default {
         },
         newAdd() {
             this.newModal = true;
+            this.activeShow = true;
             this.textTit = "添加记录";
             this.gwycForm = {};
             if (this.$refs.gwycForms) {
@@ -270,11 +284,29 @@ export default {
         },
         Edit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+            if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             if (this.$refs.gwycForms) {
                 this.$refs.gwycForms.resetFields();
             }
             this.gwycForm = Object.assign({}, row);
+        },
+        btnBack(val) {
+            this.applyXg = val;
+            this.search_query();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = {
+                num: Math.random(),
+                code: row.code,
+                sqzt: row.sqzt
+            };
         },
         btn_save() {
             let _this = this;
@@ -283,6 +315,7 @@ export default {
                     let obj = Object.assign({}, _this.gwycForm);
                     obj.lrrId = this.$store.state.user.user.uUser.id;
                     let url = "";
+                    obj.sqzt = "1";
                     if (!obj.id) {
                         url = "add";
                         gwycSave(url, obj).then(res => {

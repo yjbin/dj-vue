@@ -37,14 +37,14 @@
                     <el-table-column prop="dynr" label="调研内容" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="jjdwt" label="解决的问题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="dybg" label="调研报告(有/无)附件" :formatter="dybgDic" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="address" label="操作" width="250">
+                    <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
                             <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
                             <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)" :disabled="(scope.row.by3=='1'?true:false)">删除</el-button>
+                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -143,11 +143,11 @@
 
             <accessory-Model :newModal="accessoryModalInt" @flag="accept" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
-        <div v-show="!applyXg">
-            <transition enter-active-class="animated zoomIn" leave-active-class="animated bounceOut">
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
                 <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
-            </transition>
-        </div>
+            </div>
+        </transition>
     </div>
 </template>
 <script>
@@ -260,6 +260,7 @@ export default {
         fileAdd() {
             this.newModal = true;
             this.textTit = "新增";
+            this.activeShow = true;
             this.editObj = {};
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
@@ -268,7 +269,13 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+            if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }

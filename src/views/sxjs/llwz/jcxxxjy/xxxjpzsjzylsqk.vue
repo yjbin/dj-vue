@@ -184,7 +184,7 @@ import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab, moreMenu } from "@/utils/config";
 import { formatDate } from "@/utils/data";
-import { validPasInt } from "@/utils/validate";
+import { validPasInt,validName } from "@/utils/validate";
 import {
     dateQuery,
     dateAdd,
@@ -197,6 +197,13 @@ export default {
         applyrModifying
     },
     data() {
+         const validNames = (rule, value, callback) => {
+            if (!validName(value)) {
+                callback(new Error("请输入正确的姓名~^~^~"));
+            } else {
+                callback();
+            }
+        };
         const validNum = (rule, value, callback) => {
             if (!validPasInt(value)) {
                 callback(new Error("请输入正确的人数~^~^~"));
@@ -247,8 +254,8 @@ export default {
                 cyry: [{ required: true, message: "不能为空" }],
                 ydrs: [{ required: true, validator:validNum  }],
                 sdrs: [{ required: true, validator:validNum }],
-                jlr: [{ required: true, message: "不能为空" }],
-                zjr: [{ required: true, message: "不能为空" }],
+                jlr: [{ required: true, validator:validNames }],
+                zjr: [{ required: true, validator:validNames }],
                 xxzt: [{ required: true, message: "不能为空" }],
                 xxnr: [{ required: true, message: "不能为空" }]
             }
