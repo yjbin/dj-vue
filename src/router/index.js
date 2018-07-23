@@ -111,6 +111,11 @@ import wtqd from '@/views/jljs/wtqd'
 import zgqk from '@/views/jljs/zgqk'
 import bigzcfg from '@/views/zcfg/zcfg'
 
+//预警分析
+import bmksyj from '@/views/yjfx/bmksyj'
+import wdjsyj from '@/views/yjfx/wdjsyj'
+import xzqhyj from '@/views/yjfx/xzqhyj'
+
 
 Vue.use(Router)
 
@@ -1279,5 +1284,44 @@ export let asyncRouterMap = [
         rid: "-1"
       }
     }]
+  },
+  {
+    path: '/yjfx',
+    component: Layout,
+    redirect: '/yjfx/wdjsyj',
+    meta: {
+      title: '政策法规',
+      // icon: ['home.png', 'home-c.png']
+      icon: "el-icon-warning"
+    },
+    children: [{
+      path: 'wdjsyj',
+      component: wdjsyj,
+      name: 'wdjsyj',
+      meta: {
+        title: '五大建设预警',
+        icon: '',
+        rid: "-1"
+      }
+    }, {
+      path: 'xzqhyj',
+      component: xzqhyj,
+      name: 'xzqhyj',
+      meta: {
+        title: '行政区划预警',
+        icon: '',
+        rid: "-1"
+      }
+    }, {
+      path: 'bmksyj',
+      component: bmksyj,
+      name: 'bmksyj',
+      meta: {
+        title: '部门科室预警',
+        icon: '',
+        rid: "-1"
+      }
+    }
+    ]
   }
 ]

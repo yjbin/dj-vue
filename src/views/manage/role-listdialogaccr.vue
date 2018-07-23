@@ -56,6 +56,7 @@ export default {
 
             accrSave(obj).then(res => {
                 let data = res.data;
+                
                 _this.$message({
                     message:data.msg,
                     type: "success"
@@ -82,18 +83,21 @@ export default {
                 let data = res.data;
                 if (data.success) {
                     this.treeData = data.data;
+                    this.accr_query();
+                    this.accrModalToggle = true;
                 }
             });
         }
     },
     watch: {
         accrModal(val) {
-            this.accr_query();
-            this.accrModalToggle = val;
+            if(val){
+                this.treeQuery();
+            }
         }
     },
     mounted() {
-        this.treeQuery();
+        
     }
 };
 </script>

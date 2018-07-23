@@ -1,146 +1,158 @@
 <template>
     <div class="rrhs">
-        <el-form :inline="true" class="demo-form-inline">
-            <el-form-item label="年度">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
-                    <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="月份">
-                 <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
-                    <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="党员姓名">
-                <el-input placeholder="党员姓名" prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
-            </el-form-item>
-            <el-form-item>
-                <button  @click="ListQuery" class="topQuery">搜索</button>
-                <button  @click="fileAdd" class="topQuery">添加记录</button>
-            </el-form-item>
-        </el-form>
-        <div class="capit-tit">
-            <el-row>
-                <el-col :span="12">
-                    <div class="user-left">
-                        <span class="capit-content">不合格党员组织处置</span>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="capit-list">
-            <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
-                <!-- <el-table-column type="selection"></el-table-column> -->
-                <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-                <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="bm" label="部门处室" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="name" label="党员姓名" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="address" label="操作" width="200">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" @click="fileEdit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="listDel(scope.row)" :disabled="(scope.row.by3=='1'?true:false)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div class="user-page fr">
-                <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-                </el-pagination>
+        <div v-show="applyXg">
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="党员姓名">
+                    <el-input placeholder="党员姓名" prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <button @click="ListQuery" class="topQuery">搜索</button>
+                    <button @click="fileAdd" class="topQuery">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span class="capit-content">不合格党员组织处置</span>
+                        </div>
+                    </el-col>
+                </el-row>
             </div>
-            <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-                <div class="dict-content">
-                    <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="年度" prop="year">
-                                    <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
-                                        <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="月份" prop="month">
-                                    <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
-                                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="党员姓名" prop="name">
-                                    <el-input v-model.trim="editObj.name" placeholder="党员姓名" ></el-input>
-                                </el-form-item>
-                            </el-col>
-                            
-                        </el-row>
-                      
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="行政区划" prop="xzqh">
-                                    <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
-                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="部门科室" prop="bm">
-                                    <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
-                                        <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
-                                        </el-option>
-                                    </el-select>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="录入人" prop="lrr">
-                                    <el-input v-model="editObj.lrr" placeholder="录入人" :disabled="true"></el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" :offset="1">
-                                <el-form-item label="录入时间" prop="lrsj">
-                                    <el-date-picker v-model="editObj.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="20" :offset="3" >
-                              <el-form-item>
-                                <el-button type="success" size="small" @click="fileClick('zbcbrd')">支部初步认定</el-button>
-                                <el-button type="success" size="small" @click="fileClick('zbdchs')">支部调查核实</el-button>
-                                <el-button type="success" size="small" @click="fileClick('sjdwys')">上级党(工)委预审</el-button>
-                                <el-button type="success" size="small" @click="fileClick('zbtlbj')">支部讨论表决</el-button>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="20" :offset="3" >
-                                <el-button type="success" size="small" @click="fileClick('sjdwsp')">上级党(工)委审批</el-button>
-                                <el-button type="success" size="small" @click="fileClick('zzbmsp')">组织部门审</el-button>
-                                <el-button type="success" size="small" @click="fileClick('gbczjg')">公布处置结果</el-button>
-                            </el-col>
-                        </el-row>
-                    </el-form>
+            <div class="capit-list">
+                <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" label="部门处室" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="name" label="党员姓名" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="user-page fr">
+                    <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
                 </div>
-                <div class="footerBox">
-                    <span slot="footer" class="dialog-footer">
-                        <button v-show="activeShow" size="small" class="save" @click="btn_fileSave">保 存</button>
-                        <button @click="btn_cancel" size="small" class="cancel">取 消</button>
-                    </span>
-                </div>
-            </el-dialog>
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+                    <div class="dict-content">
+                        <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="月份" prop="month">
+                                        <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="党员姓名" prop="name">
+                                        <el-input v-model.trim="editObj.name" placeholder="党员姓名"></el-input>
+                                    </el-form-item>
+                                </el-col>
+
+                            </el-row>
+
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="行政区划" prop="xzqh">
+                                        <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="部门科室" prop="bm">
+                                        <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="录入人" prop="lrr">
+                                        <el-input v-model="editObj.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="录入时间" prop="lrsj">
+                                        <el-date-picker v-model="editObj.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="20" :offset="3">
+                                    <el-form-item>
+                                        <el-button type="success" size="small" @click="fileClick('zbcbrd')">支部初步认定</el-button>
+                                        <el-button type="success" size="small" @click="fileClick('zbdchs')">支部调查核实</el-button>
+                                        <el-button type="success" size="small" @click="fileClick('sjdwys')">上级党(工)委预审</el-button>
+                                        <el-button type="success" size="small" @click="fileClick('zbtlbj')">支部讨论表决</el-button>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="20" :offset="3">
+                                    <el-button type="success" size="small" @click="fileClick('sjdwsp')">上级党(工)委审批</el-button>
+                                    <el-button type="success" size="small" @click="fileClick('zzbmsp')">组织部门审</el-button>
+                                    <el-button type="success" size="small" @click="fileClick('gbczjg')">公布处置结果</el-button>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </div>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" size="small" class="save" @click="btn_fileSave">保 存</button>
+                            <button @click="btn_cancel" size="small" class="cancel">取 消</button>
+                        </span>
+                    </div>
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
-        <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab, moreMenu } from "@/utils/config";
 import { formatDate } from "@/utils/data";
@@ -152,12 +164,15 @@ import {
 } from "@/api/zzjs/dygl/bhgdyzzcz";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying
     },
     data() {
         return {
+            applyXg: true,
+            applyCode: {},
             seatch_year: "",
-            seatch_month:"",
+            seatch_month: "",
             seatch_name: "",
             textTit: "",
             pageTit: "",
@@ -187,7 +202,6 @@ export default {
                 year: [{ required: true, message: "不能为空" }],
                 month: [{ required: true, message: "不能为空" }],
                 name: [{ required: true, message: "不能为空" }]
-              
             }
         };
     },
@@ -211,20 +225,39 @@ export default {
 
         fileAdd() {
             this.newModal = true;
+            this.activeShow = true;
             this.textTit = "新增";
             this.editObj = {};
             this.FormInt();
-            if(this.$refs.editObj){
+            if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
         },
         fileEdit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
-            if(this.$refs.editObj){
+            if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
+            if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
             this.editObj = Object.assign({}, row);
+        },
+        btnBack(val) {
+            this.applyXg = val;
+            this.search_query();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = {
+                num: Math.random(),
+                code: row.code,
+                sqzt: row.sqzt
+            };
         },
         listDel(row) {
             this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
@@ -271,9 +304,9 @@ export default {
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh
             };
-            this.seatch_year ? obj.year = this.seatch_year : "";
-            this.seatch_name ? obj.name = this.seatch_name : "";
-            this.seatch_month ? obj.month = this.seatch_month : "";
+            this.seatch_year ? (obj.year = this.seatch_year) : "";
+            this.seatch_name ? (obj.name = this.seatch_name) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -295,6 +328,7 @@ export default {
                     let _this = this;
                     let obj = Object.assign({}, this.editObj);
                     obj.lrrId = this.$store.state.user.user.uUser.id;
+                    obj.sqzt="1";
                     if (this.editObj.id) {
                         dateUpdate(obj).then(res => {
                             let data = res.data;

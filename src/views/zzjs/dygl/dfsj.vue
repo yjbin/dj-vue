@@ -1,134 +1,148 @@
 <template>
     <div class="dfsj">
-        <el-form :inline="true" class="demo-form-inline">
-            <el-form-item label="年度">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
-                    <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="月份">
-                 <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
-                    <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item>
-                <button class="topQuery" @click="search_query">搜索</button>
-                <button class="topQuery" @click="newAdd">添加记录</button>
-            </el-form-item>
-        </el-form>
-        <div class="capit-tit">
-            <el-row>
-                <el-col :span="12">
-                    <div class="user-left">
-                        <span class="capit-content">党费收缴</span>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="capit-list">
-            <el-table :data="dfsjList" stripe border style="width: 100%">
-                <!-- <el-table-column type="selection"></el-table-column> -->
-                <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-                <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
-              
-                <el-table-column label="操作" width="150">
-                    <template slot-scope="scope">
-                        <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-                        <el-button size="mini" type="danger" @click="Del(scope.row)" >删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div class="fr">
-                <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-                </el-pagination>
+        <div v-show="applyXg">
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <button class="topQuery" @click="search_query">搜索</button>
+                    <button class="topQuery" @click="newAdd">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span class="capit-content">党费收缴</span>
+                        </div>
+                    </el-col>
+                </el-row>
             </div>
-            <!-- 新建，编辑弹框 -->
-            <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-                <el-form :inline="true" :model="dfsjForm" ref="dfsjForms" class="demo-form-inline" label-width="120px" :rules="dfsjrules">
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="年度" prop="year">
-                                 <el-select v-model="dfsjForm.year" placeholder="请选择" style="width:100%">
-                                    <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="月份" prop="month">
-                                 <el-select v-model="dfsjForm.month" placeholder="请选择" style="width:100%">
-                                    <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="行政区划" prop="xzqh">
-                                <el-select v-model="dfsjForm.xzqh" placeholder="请选择" style="width:100%" disabled>
-                                    <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="部门科室" prop="bm">
-                                <el-select v-model="dfsjForm.bm" placeholder="请选择" style="width:100%" disabled>
-                                    <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="11">
-                            <el-form-item label="录入人" prop="lrr">
-                                <el-input v-model="dfsjForm.lrr" placeholder="录入人" :disabled="true"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="11" :offset="1">
-                            <el-form-item label="录入时间" prop="lrsj">
-                                <el-date-picker v-model="dfsjForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="20" :offset="3">
-                            <el-button size="small" type="success" @click="fileClick('sjtz')">收缴台账</el-button>
-                        </el-col>
-                    </el-row>
-                </el-form>
-                <div class="footerBox">
-                    <span slot="footer" class="dialog-footer">
-                        <button v-show="activeShow" class="save" @click="btn_save">保存</button>
-                        <button @click="btn_cancel" class="cancel">取消</button>
-                    </span>
+            <div class="capit-list">
+                <el-table :data="dfsjList" stripe border style="width: 100%">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="fr">
+                    <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
                 </div>
-              
-            </el-dialog>
+                <!-- 新建，编辑弹框 -->
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+                    <el-form :inline="true" :model="dfsjForm" ref="dfsjForms" class="demo-form-inline" label-width="120px" :rules="dfsjrules">
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="年度" prop="year">
+                                    <el-select v-model="dfsjForm.year" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="月份" prop="month">
+                                    <el-select v-model="dfsjForm.month" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="行政区划" prop="xzqh">
+                                    <el-select v-model="dfsjForm.xzqh" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="部门科室" prop="bm">
+                                    <el-select v-model="dfsjForm.bm" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="录入人" prop="lrr">
+                                    <el-input v-model="dfsjForm.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="录入时间" prop="lrsj">
+                                    <el-date-picker v-model="dfsjForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="20" :offset="3">
+                                <el-button size="small" type="success" @click="fileClick('sjtz')">收缴台账</el-button>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
+                            <button @click="btn_cancel" class="cancel">取消</button>
+                        </span>
+                    </div>
+
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
-        <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
 </template>
 <script>
+import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab } from "@/utils/config";
 import { formatDate } from "@/utils/data";
-import { dfsjSearch,dfsjSave,dfsjDel } from "@/api/zzjs/dygl/dfsj"
+import { dfsjSearch, dfsjSave, dfsjDel } from "@/api/zzjs/dygl/dfsj";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying
     },
     data() {
         return {
+            applyXg: true,
+            applyCode: {},
             seatch_year: "",
             seatch_month: "",
             textTit: "",
@@ -138,27 +152,25 @@ export default {
             pageNo: 1,
             pageSize: 10,
             totalCount: 0,
-            dfsjList:[],
-            dfsjForm: {
-
-            },
+            dfsjList: [],
+            dfsjForm: {},
             ndoptions: [],
-            ndoptions2:[],
-            month:[],
-            xzqhoptions:[],
-            bmoptions:[],
-            dfsjrules:{
+            ndoptions2: [],
+            month: [],
+            xzqhoptions: [],
+            bmoptions: [],
+            dfsjrules: {
                 year: [{ required: true, message: "不能为空" }],
-                month: [{ required: true, message: "不能为空" }],
+                month: [{ required: true, message: "不能为空" }]
             },
             accessoryModalInt: false,
             upShowhide: true,
             textTitFile: "",
-            fileSrc: "",
+            fileSrc: ""
         };
     },
     methods: {
-        btn_cancel(){
+        btn_cancel() {
             this.newModal = false;
         },
         indexMethod(index) {
@@ -176,7 +188,7 @@ export default {
         },
         formInit() {
             let nowDate = new Date().getTime();
-            this.dfsjForm ={};
+            this.dfsjForm = {};
             this.dfsjForm.lrsj = nowDate;
             this.dfsjForm.bm = this.$store.state.user.user.uUser.bmbm;
             this.dfsjForm.xzqh = this.$store.state.user.user.uUser.xzqh;
@@ -188,91 +200,110 @@ export default {
         },
         newAdd() {
             this.newModal = true;
+            this.activeShow = true;
             this.textTit = "添加记录";
-            // this.dfsjForm = {};  
-            if(this.$refs.dfsjForms){
-              this.$refs.dfsjForms.resetFields();
+            // this.dfsjForm = {};
+            if (this.$refs.dfsjForms) {
+                this.$refs.dfsjForms.resetFields();
             }
             this.formInit();
         },
         search_query() {
-          let obj = {
-              pageNo: this.pageNo,
-              pageSize: this.pageSize,
-              bm: this.$store.state.user.user.uUser.bmbm,
-              xzqh: this.$store.state.user.user.uUser.xzqh
-          };
-          this.seatch_year ? obj.year = this.seatch_year :"";
-          this.seatch_month ? obj.month = this.seatch_month :"";
-          dfsjSearch(obj).then(res => {
-              let data = res.data;
-              if (data.success) {
-                  this.dfsjList = data.data.data;
-                  this.totalCount = data.data.totalCount;
-              } else {
-                  this.dfsjList = [];
-                  this.totalCount = 0;
-                  this.$message({
-                      type: "warning",
-                      message: data.msg
-                  });
-              }
-          });
+            let obj = {
+                pageNo: this.pageNo,
+                pageSize: this.pageSize,
+                bm: this.$store.state.user.user.uUser.bmbm,
+                xzqh: this.$store.state.user.user.uUser.xzqh
+            };
+            this.seatch_year ? (obj.year = this.seatch_year) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
+            dfsjSearch(obj).then(res => {
+                let data = res.data;
+                if (data.success) {
+                    this.dfsjList = data.data.data;
+                    this.totalCount = data.data.totalCount;
+                } else {
+                    this.dfsjList = [];
+                    this.totalCount = 0;
+                    this.$message({
+                        type: "warning",
+                        message: data.msg
+                    });
+                }
+            });
         },
         Edit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
-            if(this.$refs.dfsjForms){
-              this.$refs.dfsjForms.resetFields();
+            if (row.sqzt == "3") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
             }
-            this.dfsjForm = Object.assign({},row);
+            if (this.$refs.dfsjForms) {
+                this.$refs.dfsjForms.resetFields();
+            }
+            this.dfsjForm = Object.assign({}, row);
         },
-        btn_save(){
+        btnBack(val) {
+            this.applyXg = val;
+            this.search_query();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = {
+                num: Math.random(),
+                code: row.code,
+                sqzt: row.sqzt
+            };
+        },
+        btn_save() {
             let _this = this;
             this.$refs.dfsjForms.validate(valid => {
                 if (valid) {
                     let obj = Object.assign({}, _this.dfsjForm);
                     obj.lrrId = _this.$store.state.user.user.uUser.id;
                     let url = "";
+                    obj.sqzt = "1";
                     if (!obj.id) {
-                      url = "add";
-                      dfsjSave(url,obj).then(res =>{
-                        let data = res.data;
-                        if(data.success){
-                            _this.$message({
-                              type: "success",
-                              message: data.msg
-                            });
-                             _this.search_query()
-                        }else{
-                           _this.$message({
-                              type: "danger",
-                              message: data.msg
-                            })
-                        }
-                       
-                      })
-                    }else{
-                      url = "update";
-                      dfsjSave(url,obj).then(res =>{
-                        let data = res.data;
-                        if(data.success){
-                            _this.$message({
-                              type: "success",
-                              message: data.msg
-                            });
-                            _this.search_query()
-                        }else{
-                           _this.$message({
-                              type: "danger",
-                              message: data.msg
-                            })
-                        }            
-                      })
+                        url = "add";
+                        dfsjSave(url, obj).then(res => {
+                            let data = res.data;
+                            if (data.success) {
+                                _this.$message({
+                                    type: "success",
+                                    message: data.msg
+                                });
+                                _this.search_query();
+                            } else {
+                                _this.$message({
+                                    type: "danger",
+                                    message: data.msg
+                                });
+                            }
+                        });
+                    } else {
+                        url = "update";
+                        dfsjSave(url, obj).then(res => {
+                            let data = res.data;
+                            if (data.success) {
+                                _this.$message({
+                                    type: "success",
+                                    message: data.msg
+                                });
+                                _this.search_query();
+                            } else {
+                                _this.$message({
+                                    type: "danger",
+                                    message: data.msg
+                                });
+                            }
+                        });
                     }
                 }
-            })
-            this.btn_cancel()
+            });
+            this.btn_cancel();
         },
         Del(row) {
             this.$confirm("此操作将删除此条信息, 是否继续?", "提示", {
@@ -321,17 +352,17 @@ export default {
             this.fileSrc = {
                 num: Math.random(),
                 fileStr: this.dfsjForm[val],
-                zdName:val
+                zdName: val
             };
-        },
+        }
     },
     mounted() {
         this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate('nd');
+        this.ndoptions2 = doCreate("nd");
         this.bmoptions = doCreate("bmbm");
         this.xzqhoptions = doCreate("xzqh");
         this.month = doCreate("month");
         this.search_query();
     }
-}
+};
 </script>

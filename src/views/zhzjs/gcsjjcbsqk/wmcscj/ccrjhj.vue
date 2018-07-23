@@ -264,18 +264,19 @@ export default {
             let _this = this;
             if (data) {
                 if (data == "xzqh") {
-                    this.xzqh_model = true;
+                    
                     this.model_Tit = "行政区划";
                     treeQuery({ bm: this.userXzqh }).then(res => {
                         let data = res.data;
                         if (data.success) {
+                            this.xzqh_model = true;
                             _this.xzqh_data = data.data;
                             // _this.$refs.multipleTable.toggleRowSelection(_this.xzqh,true);
                         }
                     });
                 } else if (data == "bm") {
                     if (this.wmcsForm.jsXzqh) {
-                        this.bm_model = true;
+                        
                         this.model_Tit = "部门编码";
                         this.bmData();
                     } else {
@@ -293,6 +294,7 @@ export default {
             treeQueryBm({ xzqh: this.xzqh }).then(res => {
                 let data = res.data;
                 if (data.success) {
+                    this.bm_model = true;
                     this.bm_data = data.data;
                 }
             });
