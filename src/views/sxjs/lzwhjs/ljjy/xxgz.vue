@@ -198,7 +198,7 @@ export default {
                 year: [{ required: true, message: "不能为空" }],
                 xxzt: [{ required: true, message: "不能为空" }],
                 bsr: [{ required: true, validator:validNames }],
-                bssj: [{ required: true, message: "不能为空" }],
+                bssj: [{ required: true,message: "不能为空" }],
                 bsqk: [{ required: true, message: "不能为空" }]
             }
         };

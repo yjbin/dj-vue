@@ -407,6 +407,7 @@ export default {
         }
     },
     mounted() {
+        this.restaurants = this.loadAll();
         this.ListQuery();
         this.ndoptions = doCreate("ndTit");
         this.ndoptions2 = doCreate("nd");

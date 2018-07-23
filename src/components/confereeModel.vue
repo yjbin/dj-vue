@@ -34,7 +34,8 @@ export default {
             choosePeo: "0",
             peoList: [],
             chooseList: [],
-            elseList: ""
+            elseList: "",
+            flag:null
         };
     },
     props: {
@@ -60,12 +61,6 @@ export default {
             },
             deep:true
         },
-        // qtryList(val){
-        //     if(val){
-        //         debugger
-        //         this.qtry_query(val);
-        //     }
-        // }
     },
     methods: {
         qtry_query(val){
@@ -112,22 +107,29 @@ export default {
         },
         //选择全部
         checkAll() {
+            this.flag = this.peoList.every((item) =>{
+                return item.active 
+            })
             this.reset();
             let li = document.querySelectorAll(".content-peo>li");
             const li_list = Array.prototype.slice.call(li);
-            li_list.forEach((itme,index) => {
-                itme.classList.add("active");
-                this.peoList[index].active = true;
-            });
-            this.choosePeo = li_list.length;
-            for (var j = 0; j < this.peoList.length; j++) {
-                let li_obj = {
-                    chryId: this.peoList[j].id,
-                    chry: this.peoList[j].name
-                };
-                this.chooseList.push(li_obj);
+            if(this.flag){
+                 this.$emit("chooseList", this.chooseList);
+            }else{
+                li_list.forEach((itme,index) => {
+                    itme.classList.add("active");
+                    this.peoList[index].active = true;
+                });
+                this.choosePeo = li_list.length;
+                for (var j = 0; j < this.peoList.length; j++) {
+                    let li_obj = {
+                        chryId: this.peoList[j].id,
+                        chry: this.peoList[j].name
+                    };
+                    this.chooseList.push(li_obj);
+                }
+                this.$emit("chooseList", this.chooseList);
             }
-            this.$emit("chooseList", this.chooseList);
         },
         //textarea失去焦点
         blurInput() {

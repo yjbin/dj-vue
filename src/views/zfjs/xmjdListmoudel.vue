@@ -148,7 +148,7 @@ export default {
     data() {
         const validOfNumber = (rule, value, callback) => {
             if (!validateNumber(value)) {
-                callback(new Error("请输入0~100数字~"));
+                callback(new Error("请输入1~100数字~"));
             } else {
                 callback();
             }
