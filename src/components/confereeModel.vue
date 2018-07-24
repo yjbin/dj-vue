@@ -227,7 +227,8 @@ export default {
             }
         }
         .content-peo {
-            padding: 5px 10px 15px;
+            min-width: 100px;
+            padding: 5px 0 15px;
             display: -webkit-flex;
             display: flex;
             justify-content: space-between;
@@ -236,8 +237,8 @@ export default {
                 overflow: hidden;
                 height: 22px;
                 line-height: 22px;
-                margin-right: 0.5%;
-                margin-bottom: 3%;
+                margin-right:3px; 
+                margin-bottom: 6px;
                 border-radius: 5px;
                 padding-right: 10px;
                 border: 1px solid #cdcdcd;

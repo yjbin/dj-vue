@@ -29,10 +29,26 @@
                         <span class="ctSpan" @click="ctQuery(scope.row)">{{scope.row.cdmc}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="green" label="绿灯" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="blue" label="蓝灯" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="yellow" label="黄灯" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="red" label="红灯" show-overflow-tooltip></el-table-column>
+                <el-table-column label=" " show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-html="scope.row.green?scope.row.green:0"></span>
+                    </template>
+                </el-table-column>
+                <el-table-column label=" " show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-html="scope.row.blue?scope.row.blue:0"></span>
+                    </template>
+                </el-table-column>
+                <el-table-column label=" " show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-html="scope.row.yellow?scope.row.yellow:0"></span>
+                    </template>
+                </el-table-column>
+                <el-table-column label=" " show-overflow-tooltip>
+                    <template slot-scope="scope">
+                        <span v-html="scope.row.red?scope.row.red:0"></span>
+                    </template>
+                </el-table-column>
             </el-table>
             <!-- <div class="user-page fr">
                     <el-pagination @current-change="handleCurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
@@ -82,13 +98,26 @@ export default {
         ListQuery() {
             let obj = {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                cdbm: this.ctArr[this.ctIndex]
+                cdbm: this.ctArr[this.ctIndex],
+                flag:this.ctIndex==0?"":"CT"
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             wdjsyjQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
                     this.dateList = data.data.data;
+                    document
+                        .getElementsByClassName("cell")[2]
+                        .classList.add("yjGreen");
+                    document
+                        .getElementsByClassName("cell")[3]
+                        .classList.add("yjBlue");
+                    document
+                        .getElementsByClassName("cell")[4]
+                        .classList.add("yjYellow");
+                    document
+                        .getElementsByClassName("cell")[5]
+                        .classList.add("yjRed");
                 } else {
                     this.$message({
                         message: data.msg,
@@ -120,6 +149,38 @@ export default {
     }
     .ctSpan {
         cursor: pointer;
+    }
+}
+</style>
+<style lang="scss">
+.dcyj {
+    .yjGreen {
+        background: green;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px green;
+    }
+    .yjBlue {
+        background: blue;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px blue;
+    }
+    .yjYellow {
+        background: yellow;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px yellow;
+    }
+    .yjRed {
+        background: red;
+        width: 20px !important;
+        height: 20px !important;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px red;
     }
 }
 </style>
