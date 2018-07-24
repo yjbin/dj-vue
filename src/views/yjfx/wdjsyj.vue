@@ -1,10 +1,8 @@
 <template>
     <div class="dcyj">
-
         <el-form :inline="true" class="demo-form-inline">
-
             <el-form-item label="年度">
-                <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
+                <el-select suffix-icon="el-icon-date" v-model="seatch_year">
                     <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                     </el-option>
                 </el-select>
@@ -23,7 +21,6 @@
                 </el-col>
             </el-row>
         </div>
-
         <div class="capit-list">
             <el-table :data="dateList" stripe border style="width: 100%">
                 <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
@@ -62,8 +59,8 @@ export default {
             ndoptions: [],
             dateList: [],
             ctIndex: 0,
-            ctArr:{
-                0:""
+            ctArr: {
+                0: ""
             }
         };
     },
@@ -79,7 +76,7 @@ export default {
         ctQuery(row) {
             this.cdbm = row.cdbm;
             this.ctIndex++;
-            this.ctArr[this.ctIndex]=row.cdbm;
+            this.ctArr[this.ctIndex] = row.cdbm;
             this.ListQuery();
         },
         ListQuery() {

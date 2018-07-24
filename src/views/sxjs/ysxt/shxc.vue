@@ -213,6 +213,7 @@ export default {
             textTitFile: "",
             fileSrc: "",
             rulesFile: {
+                year: [{ required: true, message: "不能为空" }],
                 xcxs: [{ required: true, message: "不能为空" }],
                 xcsj: [{ required: true, message: "不能为空" }],
                 xcdd: [{ required: true, message: "不能为空" }],

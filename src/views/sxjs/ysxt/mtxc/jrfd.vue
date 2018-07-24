@@ -178,6 +178,7 @@ export default {
             xzqhoptions: [],
             bmoptions: [],
             jrfdrules: {
+                year: [{ required: true, message: "不能为空" }],
                 tgsj: [{ required: true, message: "不能为空" }],
                 tgnr: [{ required: true, message: "不能为空" }],
                 tgr: [{ required: true, validator:validNames }],
