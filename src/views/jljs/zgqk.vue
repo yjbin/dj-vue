@@ -288,8 +288,8 @@ export default {
             let obj = {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
-                bm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                jsBm: this.$store.state.user.user.uUser.bmbm,
+                jsXzqh: this.$store.state.user.user.uUser.xzqh
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             dateQuery(obj).then(res => {
