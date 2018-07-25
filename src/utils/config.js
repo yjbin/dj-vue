@@ -347,10 +347,10 @@ export function moreMenu(data) {
 import FileSaver from 'file-saver'
 import XLSX from 'xlsx';
 export function exportExcel(id) {
-  var arr = Array.prototype.slice.call(document.getElementsByClassName('has-gutter')[1].getElementsByClassName('is-leaf'));
-  arr.map(i => {
-    i.setAttribute("rowspan", "1");
-  })
+  // var arr = Array.prototype.slice.call(document.getElementsByClassName('has-gutter')[1].getElementsByClassName('is-leaf'));
+  // arr.map(i => {
+  //   i.setAttribute("rowspan", "1");
+  // })
   /* generate workbook object from table */
   var wb = XLSX.utils.table_to_book(document.querySelector('#' + id))
   /* get binary string as output */

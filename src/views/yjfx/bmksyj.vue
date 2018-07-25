@@ -16,34 +16,36 @@
                 <el-col :span="24">
                     <div class="user-left">
                         <span class="capit-content">部门科室预警</span>
-                        <el-button v-show="ctIndex>0" size="small" type="warning" style="float:right;margin:3px 20px 0 0;" @click="backBtn">返回</el-button>
+                        <el-button v-show="ctIndex>0" size="mini" type="warning" style="float:right;margin:5px 20px 0 0;" @click="backBtn">返回</el-button>
+                        <el-button class="export" size="mini" type="success" @click.prevent="exportModel('bmks')">导出</el-button>
+                        <el-button class="export1" size="mini" type="warning" @click.prevent="printModel('printBox')">打印</el-button>
                     </div>
                 </el-col>
             </el-row>
         </div>
-        <div class="capit-list">
-            <el-table :data="dateList" stripe border style="width: 100%" empty-text="0">
+        <div class="capit-list" id="printBox">
+            <el-table :data="dateList" id="bmks" stripe border style="width: 100%" empty-text="0">
                 <el-table-column label="部门科室" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span class="ctSpan" @click="ctQuery(scope.row)">{{bmbmDic(scope.row)}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="" show-overflow-tooltip>
+                <el-table-column label="绿灯" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span v-html="scope.row.green?scope.row.green:0"></span>
                     </template>
                 </el-table-column>
-                <el-table-column label="" show-overflow-tooltip>
+                <el-table-column label="蓝灯" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span v-html="scope.row.blue?scope.row.blue:0"></span>
                     </template>
                 </el-table-column>
-                <el-table-column label="" show-overflow-tooltip>
+                <el-table-column label="黄灯" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span v-html="scope.row.yellow?scope.row.yellow:0"></span>
                     </template>
                 </el-table-column>
-                <el-table-column label="" show-overflow-tooltip>
+                <el-table-column label="红灯" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span v-html="scope.row.red?scope.row.red:0"></span>
                     </template>
@@ -57,7 +59,7 @@
     </div>
 </template>
 <script>
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu,exportExcel,printExcel } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { bmyjQuery } from "@/api/yjfx/yjfx";
 export default {
@@ -124,6 +126,14 @@ export default {
                     });
                 }
             });
+        },
+         //导出
+        exportModel(option){
+              exportExcel(option);
+        },
+        //打印
+        printModel(id){
+            printExcel(id);
         }
     },
     mounted() {
@@ -154,6 +164,7 @@ export default {
 <style lang="scss">
 .dcyj {
     .yjGreen {
+        color:transparent;
         background: green;
         width: 20px !important;
         height: 20px !important;
@@ -161,6 +172,7 @@ export default {
         box-shadow: 0px 0px 10px green;
     }
     .yjBlue {
+        color:transparent;
         background: blue;
         width: 20px !important;
         height: 20px !important;
@@ -168,6 +180,7 @@ export default {
         box-shadow: 0px 0px 10px blue;
     }
     .yjYellow {
+        color:transparent;
         background: yellow;
         width: 20px !important;
         height: 20px !important;
@@ -175,6 +188,7 @@ export default {
         box-shadow: 0px 0px 10px yellow;
     }
     .yjRed {
+        color:transparent;
         background: red;
         width: 20px !important;
         height: 20px !important;

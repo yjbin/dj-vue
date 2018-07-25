@@ -58,6 +58,10 @@ a {
 
 .export {
   float: right;
+  margin: 5px 17px 0 0; }
+
+.export1 {
+  float: right;
   margin: 5px 8px 0 0; }
 
 .el-table th,
