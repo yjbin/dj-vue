@@ -24,7 +24,7 @@
             </el-row>
         </div>
         <div class="capit-list" id="printBox">
-            <el-table :data="dateList" id="bmks" stripe border style="width: 100%" empty-text="0">
+            <el-table :data="dateList" id="bmks" stripe border style="width: 100%">
                 <el-table-column label="部门科室" show-overflow-tooltip>
                     <template slot-scope="scope">
                         <span class="ctSpan" @click="ctQuery(scope.row)">{{bmbmDic(scope.row)}}</span>
@@ -59,7 +59,13 @@
     </div>
 </template>
 <script>
-import { doCreate, getDicTab, moreMenu,exportExcel,printExcel } from "@/utils/config";
+import {
+    doCreate,
+    getDicTab,
+    moreMenu,
+    exportExcel,
+    printExcel
+} from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { bmyjQuery } from "@/api/yjfx/yjfx";
 export default {
@@ -100,13 +106,14 @@ export default {
             let obj = {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
                 bm: this.ctArr[this.ctIndex],
-                flag:this.ctIndex==0?"":"CT"
+                flag: this.ctIndex == 0 ? "" : "CT"
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             bmyjQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
                     this.dateList = data.data.data;
+
                     document
                         .getElementsByClassName("cell")[1]
                         .classList.add("yjGreen");
@@ -127,12 +134,12 @@ export default {
                 }
             });
         },
-         //导出
-        exportModel(option){
-              exportExcel(option);
+        //导出
+        exportModel(option) {
+            exportExcel(option);
         },
         //打印
-        printModel(id){
+        printModel(id) {
             printExcel(id);
         }
     },
@@ -164,7 +171,7 @@ export default {
 <style lang="scss">
 .dcyj {
     .yjGreen {
-        color:transparent;
+        color: transparent;
         background: green;
         width: 20px !important;
         height: 20px !important;
@@ -172,7 +179,7 @@ export default {
         box-shadow: 0px 0px 10px green;
     }
     .yjBlue {
-        color:transparent;
+        color: transparent;
         background: blue;
         width: 20px !important;
         height: 20px !important;
@@ -180,7 +187,7 @@ export default {
         box-shadow: 0px 0px 10px blue;
     }
     .yjYellow {
-        color:transparent;
+        color: transparent;
         background: yellow;
         width: 20px !important;
         height: 20px !important;
@@ -188,7 +195,7 @@ export default {
         box-shadow: 0px 0px 10px yellow;
     }
     .yjRed {
-        color:transparent;
+        color: transparent;
         background: red;
         width: 20px !important;
         height: 20px !important;
