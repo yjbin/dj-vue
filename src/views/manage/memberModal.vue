@@ -150,10 +150,10 @@
                     </el-col>
                   </el-row>
                 </el-col>
-                <el-col :span="11" :offset="1">
+                <!-- <el-col :span="11" :offset="1">
                   <el-row :gutter="20" style="margin:0 0 10px 0">
                     <el-col :span="7" style="padding:0">
-                      <!-- <span class="red">*</span> -->
+                      <span class="red">*</span>
                       <span>GPS信息</span>
                     </el-col>
                     <el-col :span="17" style="padding:0">
@@ -162,7 +162,7 @@
                       </el-form-item>
                     </el-col>
                   </el-row>
-                </el-col>
+                </el-col> -->
               </el-row>
             </el-form>
           </el-tab-pane>

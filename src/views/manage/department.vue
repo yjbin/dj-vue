@@ -1,122 +1,125 @@
 <template>
-  <div class="source">
-    <div class="source_tree">
-      <el-scrollbar class="page-component__scroll">
-        <el-tree :data="bm_treeData" node-key="id" ref="tree" default-expand-all @node-click="nodeClick" :expand-on-click-node="false">
-          <span class="custom-tree-node" slot-scope="{ node, data }">
-            <el-tooltip v-if="node.label.length>8" class="item" effect="dark" :content="node.label" placement="top">
-              <span class="nodeLabel">{{ node.label }}</span>
-            </el-tooltip>
-            <span v-else class="nodeLabel">{{ node.label }}</span>
-            <span>
-              <el-tooltip class="item" effect="dark" content="添加下级" placement="top">
-                <i class="el-icon-plus" @click.stop="() => append(data)"></i>
-              </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="添加本级" placement="top">
-                <i class="el-icon-circle-plus-outline" @click.stop="() => appendTj(data)"></i>
-              </el-tooltip>
-              <i class="el-icon-delete" @click.stop="() => remove(node, data)"></i>
-            </span>
-          </span>
-        </el-tree>
-      </el-scrollbar>
+    <div class="source">
+        <div class="source_tree">
+            <el-scrollbar class="page-component__scroll">
+                <el-tree :data="bm_treeData" node-key="id" ref="tree" default-expand-all @node-click="nodeClick" :expand-on-click-node="false">
+                    <span class="custom-tree-node" slot-scope="{ node, data }">
+                        <el-tooltip v-if="node.label.length>8" class="item" effect="dark" :content="node.label" placement="top">
+                            <span class="nodeLabel">{{ node.label }}</span>
+                        </el-tooltip>
+                        <span v-else class="nodeLabel">{{ node.label }}</span>
+                        <span>
+                            <el-tooltip class="item" effect="dark" content="添加下级" placement="top">
+                                <i class="el-icon-plus" @click.stop="() => append(data)"></i>
+                            </el-tooltip>
+                            <el-tooltip class="item" effect="dark" content="添加本级" placement="top">
+                                <i class="el-icon-circle-plus-outline" @click.stop="() => appendTj(data)"></i>
+                            </el-tooltip>
+                            <i class="el-icon-delete" @click.stop="() => remove(node, data)"></i>
+                        </span>
+                    </span>
+                </el-tree>
+            </el-scrollbar>
+        </div>
+        <div class="source_form">
+            <el-form :inline="true" :model="formData" label-width="100px" ref="treeForm" class="demo-form-inline" :rules="rules">
+                <el-row>
+                    <el-col :lg="10" :sm="22" :offset="1">
+                        <el-form-item label="部门名称" prop="name">
+                            <el-input v-model.trim="formData.name" placeholder="部门名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :lg="10" :offset="1" :sm="22">
+                        <el-form-item label="部门编码" prop="bm">
+                            <el-input v-model.trim="formData.bm" placeholder="部门编码"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :lg="10" :sm="22" :offset="1">
+                        <el-form-item label="负责人" prop="fzr">
+                            <el-input v-model.trim="formData.fzr" placeholder="负责人"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :lg="10" :offset="1" :sm="22">
+                        <el-form-item label="联系电话" prop="tel">
+                            <el-input v-model.trim="formData.tel" type="tel" placeholder="联系电话"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :lg="10" :sm="22" :offset="1">
+                        <el-form-item label="地址" prop="address">
+                            <el-input v-model.trim="formData.address" placeholder="地址"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :lg="10" :offset="1" :sm="22">
+                        <el-form-item label="组织类型" prop="type">
+                            <el-select v-model="formData.type" placeholder="请选择" style="width:100%">
+                                <el-option v-for="(item,index) in typeoptions" :key="index" :label="item.label" :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :lg="21" :sm="22" :offset="1">
+                        <el-form-item label="备注" prop="bz">
+                            <el-input type="textarea" :autosize="{ minRows: 5}" v-model="formData.bz" placeholder="备注"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="2" :offset="11">
+                        <el-form-item class="none">
+                            <el-button type="primary" @click="formSave">确定</el-button>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :offset="1" :lg="22" :sm="22">
+                        <div class="page_middle">成员信息</div>
+                        <hr>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-form :inline="true" class="demo-form-inline" style="margin-left:5%">
+                        <el-form-item label="姓名">
+                            <el-input v-model.trim="searchMember" placeholder="姓名" @keyup.enter.native="search" prefix-icon="el-icon-search"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" size="medium" @click="search">查询</el-button>
+                            <el-button type="success" size="medium" @click="newMember">添加</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-row>
+                <el-row>
+                    <el-col :offset="1" :lg="22" :sm="22">
+                        <el-table :data="tableData" border style="width: 100%">
+                            <el-table-column width="50" label="序号" type="index" :index="indexMethod">
+                            </el-table-column>
+                            <el-table-column prop="name" label="姓名" show-overflow-tooltip>
+                            </el-table-column>
+                            <el-table-column prop="zw" label="职务" :formatter="getZwlx" show-overflow-tooltip>
+                            </el-table-column>
+                            <el-table-column prop="tel" label="电话" show-overflow-tooltip>
+                            </el-table-column>
+                            <el-table-column prop="address" label="地址" show-overflow-tooltip>
+                            </el-table-column>
+                            <el-table-column label="操作" width="150">
+                                <template slot-scope="scope">
+                                    <el-button @click="handleClick(scope.row)" type="primary" size="mini">修改</el-button>
+                                    <el-button type="danger" size="mini" @click="deleteMember(scope.row)">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-col>
+                </el-row>
+                <el-pagination layout="total,prev, pager, next" :total="totalCount" class="fr marr10" @current-change="currentPage" :current-page.sync="pageNo" :page-size="pageSize"></el-pagination>
+            </el-form>
+        </div>
+        <member-modal :newModal="newModal" @newToggle="newToggle" :groupObj="groupObj" @groupMember="groupMember" :xzqh="xzqh" :bm="bm" :textTit="textTit"></member-modal>
     </div>
-    <div class="source_form">
-      <el-form :inline="true" :model="formData" label-width="100px" ref="treeForm" class="demo-form-inline" :rules="rules">
-        <el-row>
-          <el-col :lg="10" :sm="22" :offset="1">
-            <el-form-item label="部门名称" prop="name">
-              <el-input v-model.trim="formData.name" placeholder="部门名称"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="10" :offset="1" :sm="22">
-            <el-form-item label="部门编码" prop="bm">
-              <el-input v-model.trim="formData.bm" placeholder="部门编码"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :lg="10" :sm="22" :offset="1">
-            <el-form-item label="负责人" prop="fzr">
-              <el-input v-model.trim="formData.fzr" placeholder="负责人"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="10" :offset="1" :sm="22">
-            <el-form-item label="联系电话" prop="tel">
-              <el-input v-model.trim="formData.tel" type="tel" placeholder="联系电话"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :lg="10" :sm="22" :offset="1">
-            <el-form-item label="地址" prop="address">
-              <el-input v-model.trim="formData.address" placeholder="地址"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :lg="10" :offset="1" :sm="22">
-            <el-form-item label="GPS" prop="gps">
-              <el-input v-model.trim="formData.gps" placeholder="GPS"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :lg="21" :sm="22" :offset="1">
-            <el-form-item label="备注" prop="bz">
-              <el-input type="textarea" :autosize="{ minRows: 5}" v-model="formData.bz" placeholder="备注"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="2" :offset="11">
-            <el-form-item class="none">
-              <el-button type="primary" @click="formSave">确定</el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :offset="1" :lg="22" :sm="22">
-            <div class="page_middle">成员信息</div>
-            <hr>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-form :inline="true" class="demo-form-inline" style="margin-left:5%">
-            <el-form-item label="姓名">
-              <el-input v-model.trim="searchMember" placeholder="姓名" @keyup.enter.native="search" prefix-icon="el-icon-search"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" size="medium" @click="search">查询</el-button>
-              <el-button type="success" size="medium" @click="newMember">添加</el-button>
-            </el-form-item>
-          </el-form>
-        </el-row>
-        <el-row>
-          <el-col :offset="1" :lg="22" :sm="22">
-            <el-table :data="tableData" border style="width: 100%">
-              <el-table-column width="50" label="序号" type="index" :index="indexMethod">
-              </el-table-column>
-              <el-table-column prop="name" label="姓名" show-overflow-tooltip>
-              </el-table-column>
-              <el-table-column prop="zw" label="职务" :formatter="getZwlx" show-overflow-tooltip>
-              </el-table-column>
-              <el-table-column prop="tel" label="电话" show-overflow-tooltip>
-              </el-table-column>
-              <el-table-column prop="address" label="地址" show-overflow-tooltip>
-              </el-table-column>
-              <el-table-column label="操作" width="150">
-                <template slot-scope="scope">
-                  <el-button @click="handleClick(scope.row)" type="primary" size="mini">修改</el-button>
-                  <el-button type="danger" size="mini" @click="deleteMember(scope.row)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-col>
-        </el-row>
-        <el-pagination layout="total,prev, pager, next" :total="totalCount" class="fr marr10" @current-change="currentPage" :current-page.sync="pageNo" :page-size="pageSize"></el-pagination>
-      </el-form>
-    </div>
-    <member-modal :newModal="newModal" @newToggle="newToggle" :groupObj="groupObj" @groupMember="groupMember" :xzqh="xzqh" :bm="bm" :textTit="textTit"></member-modal>
-  </div>
 </template>
 <script>
 import {
@@ -139,6 +142,7 @@ export default {
             formData: {},
             bm_treeData: [],
             tableData: [],
+            typeoptions: [],
             bmszNumber: [],
             formBm: "",
             newModal: false,
@@ -157,7 +161,7 @@ export default {
                 fzr: [{ required: true, message: "不能为空" }],
                 tel: [{ required: true, message: "不能为空" }],
                 address: [{ required: true, message: "不能为空" }],
-                gps: [{ required: true, message: "不能为空" }]
+                type: [{ required: true, message: "不能为空" }]
             }
         };
     },
@@ -210,21 +214,23 @@ export default {
                     type: "warning"
                 })
                     .then(() => {
-                        deleteTree({ bm: data.bm, xzqh:data.xzqh }).then(res => {
-                            let data = res.data;
-                            if (data.success) {
-                                this.$message({
-                                    type: "success",
-                                    message: data.msg
-                                });
-                                this.treeQueryBm();
-                            } else {
-                                this.$message({
-                                    type: "error",
-                                    message: data.msg
-                                });
+                        deleteTree({ bm: data.bm, xzqh: data.xzqh }).then(
+                            res => {
+                                let data = res.data;
+                                if (data.success) {
+                                    this.$message({
+                                        type: "success",
+                                        message: data.msg
+                                    });
+                                    this.treeQueryBm();
+                                } else {
+                                    this.$message({
+                                        type: "error",
+                                        message: data.msg
+                                    });
+                                }
                             }
-                        });
+                        );
                     })
                     .catch(() => {
                         this.$message({
@@ -334,13 +340,13 @@ export default {
                         if (data.success) {
                             this.$message({
                                 type: "success",
-                                message:data.msg
+                                message: data.msg
                             });
                             this.userList(this.pageSize, this.pageNo);
                         } else {
                             this.$message({
                                 type: "error",
-                                message:data.msg
+                                message: data.msg
                             });
                         }
                     });
@@ -441,8 +447,8 @@ export default {
         this.treeQueryBm();
         this.userList(this.pageSize, this.pageNo);
         this.$refs.tree.setCurrentKey([1]);
+        this.typeoptions = doCreate("type");
         this.userXzqh = this.$store.state.user.user.uUser.xzqh;
-        
     }
 };
 </script>
