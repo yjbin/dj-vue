@@ -59,7 +59,7 @@
           </el-pagination>
         </div>
         <!-- 新建，编辑弹框 -->
-        <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" width="60%" top="12vh">
+        <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" width="60%" top="10vh">
           <el-form :inline="true" :model="shykForm" ref="shykForms" class="demo-form-inline" label-width="120px" :rules="dfsjrules">
             <el-row>
               <el-col :span="17">
