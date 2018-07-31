@@ -317,9 +317,10 @@ export default {
                             }
                         });
                     }
+                    this.btn_cancel();
                 }
             });
-            this.btn_cancel();
+            
         },
         Del(row) {
             this.$confirm("此操作将删除此条信息, 是否继续?", "提示", {
