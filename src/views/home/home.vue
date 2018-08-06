@@ -56,6 +56,7 @@ export default {
         this.xzqh = doCreate("xzqh");
         this.bmbm = doCreate("bmbm");
         this.duojiDic = doCreate("duojiDic");
+        this.duojiDic = doCreate("cd");
         //         this.zjtjClick();
         //         this.sycjBigEchars();
     }

@@ -7,6 +7,14 @@ export function dateQuery(obj) {
         data: obj
     })
 }
+//列表查询
+export function dateQuery2(obj) {
+    return request({
+        url: '/ZfjsXmjd/findPage',
+        method: 'post',
+        data: obj
+    })
+}
 //新增
 export function dateAdd(obj) {
   return request({

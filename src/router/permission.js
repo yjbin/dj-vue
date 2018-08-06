@@ -15,12 +15,14 @@ function hasPermission(id, rid) {
 const whiteList = ['/login']
 
 router.beforeEach((to, from, next) => {
+
   if (getToken()) {
     if (to.path === '/login') {
       next({
         path: '/'
       })
-    } else {
+    }
+    else {
       if (store.getters.tree.length === 0) {
         store.dispatch('GetUserInfo').then(res => {
           store.dispatch('GetUserRole').then(res => {
@@ -30,7 +32,8 @@ router.beforeEach((to, from, next) => {
             }).then(() => {
               if (store.getters.addRouters.length) {
                 router.addRoutes(store.getters.addRouters)
-                next({ ...to,
+                next({
+                  ...to,
                   replace: true
                 })
               }

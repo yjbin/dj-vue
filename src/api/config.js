@@ -28,3 +28,11 @@ export function duojiDict() {
     method: 'post'
   })
 }
+//菜单项接口
+export function cdDic() {
+  return request({
+    url: "/permissionOne/findDictPermission",
+    method: 'post',
+    data:{}
+  })
+}

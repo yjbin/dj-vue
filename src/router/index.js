@@ -115,6 +115,10 @@ import bigzcfg from '@/views/zcfg/zcfg'
 import bmksyj from '@/views/yjfx/bmksyj'
 import wdjsyj from '@/views/yjfx/wdjsyj'
 import xzqhyj from '@/views/yjfx/xzqhyj'
+import WarningToedit from "@/views/yjfx/WarningToedit"
+//领导视图
+import ldst from "@/views/ldst/ldst"
+
 
 
 Vue.use(Router)
@@ -1290,7 +1294,7 @@ export let asyncRouterMap = [
     component: Layout,
     redirect: '/yjfx/wdjsyj',
     meta: {
-      title: '政策法规',
+      title: '预警分析',
       // icon: ['home.png', 'home-c.png']
       icon: "el-icon-warning"
     },
@@ -1321,7 +1325,37 @@ export let asyncRouterMap = [
         icon: '',
         rid: "-1"
       }
+    },
+    {
+      path: 'WarningToedit',
+      component: WarningToedit,
+      name: 'WarningToedit',
+      meta: {
+        title: '预警编辑',
+        icon: '',
+        rid: "-1"
+      }
     }
     ]
+  },
+  {
+    path: '/ldst',
+    component: Inner_Layout,
+    redirect: '/ldst/ldst',
+    meta: {
+      title: '领导视图',
+      // icon: ['home.png', 'home-c.png']
+      icon: "el-icon-star-on"
+    },
+    children: [{
+      path: 'ldst',
+      component: ldst,
+      name: 'ldst',
+      meta: {
+        title: '领导视图',
+        icon: '',
+        rid: "-1"
+      }
+    }]
   }
 ]

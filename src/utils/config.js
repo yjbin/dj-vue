@@ -223,11 +223,58 @@ obj = [{
 }
 ];
 dicMap.setItem("bblx", JSON.stringify(obj));
+//预警状态
+obj = [{
+  label: "绿灯",
+  value: "1"
+},
+{
+  label: "黄灯",
+  value: "2"
+},
+{
+  label: "橙灯",
+  value: "3"
+},
+{
+  label: "红灯",
+  value: "4"
+}
+];
+dicMap.setItem("yjzt", JSON.stringify(obj));
+//预警频率
+obj = [{
+  label: "无",
+  value: "0"
+},
+{
+  label: "月度",
+  value: "1"
+},
+{
+  label: "季度",
+  value: "2"
+},
+{
+  label: "半年",
+  value: "3"
+},
+{
+  label: "年度",
+  value: "4"
+},
+{
+  label: "其他",
+  value: "5"
+}
+];
+dicMap.setItem("yjpl", JSON.stringify(obj));
 import {
   dictionaries,
   xzqhDict,
   bmbmDict,
-  duojiDict
+  duojiDict,
+  cdDic
 } from "@/api/config";
 export function doCreate(key) {
   if (dicMap.getItem(key)) {
@@ -288,7 +335,24 @@ function diction(key) {
       }).catch(res => {
         console.log("失败'")
       })
-    } else {
+    } else if(key=="cd"){
+      cdDic().then(res => {
+        let data = res.data;
+        if (data.success) {
+          data.data.map(i => {
+            i.label = i.pName;
+            i.value = i.code;
+            return i
+          });
+          dicMap.setItem(key, JSON.stringify(data.data));
+          resolve(data.data);
+        }
+      }).catch(res => {
+        console.log("失败'")
+      })
+
+    }else
+     {
       dictionaries(key).then(res => {
         let data = res.data;
         if (data.success) {
