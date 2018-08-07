@@ -233,16 +233,18 @@ export let asyncRouterMap = [
         icon: '',
         rid: "-1"
       }
-    }, {
-      path: 'multistageDown',
-      component: multistageDown,
-      name: 'multistageDown',
-      meta: {
-        title: '多级下拉设置',
-        icon: '',
-        rid: "-1"
-      }
-    }]
+    }
+    // , {
+    //   path: 'multistageDown',
+    //   component: multistageDown,
+    //   name: 'multistageDown',
+    //   meta: {
+    //     title: '多级下拉设置',
+    //     icon: '',
+    //     rid: "-1"
+    //   }
+    // }
+  ]
   }, {
     path: '/zzjs',
     component: Layout,

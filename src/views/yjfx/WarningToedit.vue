@@ -35,21 +35,21 @@
                         <th width="20%">五大建设</th>
                         <th width="20%">预警项目</th>
                         <th width="10%">
-                            <span class="yjGreen"></span>
+                            <span class="yjGreen">绿色</span>
                         </th>
                         <th width="10%">
-                            <span class="yjBlue"> </span>
+                            <span class="yjBlue">黄色</span>
                         </th>
                         <th width="10%">
-                            <span class="yjYellow"> </span>
+                            <span class="yjYellow">橙色</span>
                         </th>
                         <th width="10%">
-                            <span class="yjRed"> </span>
+                            <span class="yjRed">红色</span>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in tabList" :key="item">
+                    <tr v-for="(item,index) in tabList" :key="index">
                         <td :rowspan="item.pIdspan" :class="{hidden: item.pIddis}">{{CdDic(item.pId)}}</td>
                         <td :rowspan="item.cdmcspan" :class="{hidden: item.cdmcmdis,pointerClass:true}" @click="ctClick(item)">{{item.cdmc}}</td>
                         <td>{{item.green}}</td>
@@ -85,7 +85,7 @@
                 </el-table-column>
                 <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
-                        <el-button size="mini" type="primary"  @click="yjEdit(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="primary" @click="yjEdit(scope.row)">编辑</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -106,7 +106,7 @@
                 <el-table-column prop="yjpl" label="预警频率" :formatter="yjplDic" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="bn1" label="前半年" show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <el-select suffix-icon="el-icon-date" v-model="scope.row.bn1"  :disabled="!scope.row.bn1">
+                        <el-select suffix-icon="el-icon-date" v-model="scope.row.bn1" :disabled="!scope.row.bn1">
                             <el-option v-for="(item,index) in yjztoptions" :key="index" :label="item.label" :value="item.value">
                             </el-option>
                         </el-select>
@@ -122,7 +122,7 @@
                 </el-table-column>
                 <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
-                        <el-button size="mini" type="primary"  @click="yjEdit(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="primary" @click="yjEdit(scope.row)">编辑</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -175,7 +175,7 @@
                 </el-table-column>
                 <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
-                        <el-button size="mini" type="primary"  @click="yjEdit(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="primary" @click="yjEdit(scope.row)">编辑</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -290,11 +290,30 @@
                         </el-select>
                     </template>
                 </el-table-column>
-                <el-table-column prop="address" label="操作" width="100">
+                <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
                         <el-button size="mini" type="primary" @click="yjEdit(scope.row)">编辑</el-button>
+                        <el-button size="mini" type="primary" @click="xgjlClick(scope.row)">修改记录</el-button>
                     </template>
                 </el-table-column>
+            </el-table>
+        </div>
+        <div class="wdjsDeil" v-show="xgjlTable" style="margin-top:40px;">
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="24">
+                        <div class="user-left">
+                            <span class="capit-content">修改记录</span>
+                            <!-- <el-button v-show="ctIndex>0" size="mini" type="warning" style="float:right;margin:5px 20px 0 0;" @click="backSyb2">返回</el-button> -->
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+            <el-table :data="xgjldateList" stripe border style="width: 100%">
+                <el-table-column prop="lrr" label="修改人" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="lrsj" label="修改时间" :formatter="sjDic" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="xgyy" label="修改原因" show-overflow-tooltip></el-table-column>
+
             </el-table>
         </div>
         <el-dialog :title="textTit2" :visible.sync="newModal" :before-close="btn_cancel">
@@ -337,8 +356,9 @@
     </div>
 </template>
 <script>
-import { wdjsDetillQuery, yjbjUpdate } from "@/api/ldst";
+import { wdjsDetillQuery, yjbjUpdate, xgjlQuery } from "@/api/ldst";
 import { getDicTab } from "@/utils/config";
+import { formatDate } from "@/utils/data";
 import { doCreate, moreMenu } from "@/utils/config";
 import { treeQuery } from "@/api/administrative";
 import { treeQueryBm } from "@/api/department";
@@ -356,9 +376,11 @@ export default {
             jddateList: [],
             bndateList: [],
             nddateList: [],
+            xgjldateList: [],
             ctIndex: 0,
             newModalToggle: true,
             newModal: false,
+            xgjlTable: false,
             editObj: {},
             ctLevel: {
                 0: "2"
@@ -387,6 +409,9 @@ export default {
     methods: {
         yjplDic(row) {
             return getDicTab("yjpl", row.yjpl);
+        },
+        sjDic(row) {
+            return formatDate(row.lrsj, "yyyy-MM-dd");
         },
         nodeClick(data) {
             this.xzqh = data.bm;
@@ -501,11 +526,11 @@ export default {
                     if (data.data.data.length) {
                         if (data.data.data[0].yjpl == "1") {
                             this.yddateList = data.data.data;
-                        }else if(data.data.data[0].yjpl == "2"){
+                        } else if (data.data.data[0].yjpl == "2") {
                             this.jddateList = data.data.data;
-                        }else if(data.data.data[0].yjpl == "3"){
+                        } else if (data.data.data[0].yjpl == "3") {
                             this.bndateList = data.data.data;
-                        }else if(data.data.data[0].yjpl == "4"){
+                        } else if (data.data.data[0].yjpl == "4") {
                             this.nddateList = data.data.data;
                         }
                     } else {
@@ -538,9 +563,25 @@ export default {
             }
             return list;
         },
+        xgjlTableList(row) {
+            let obj = {
+                yjxxId: row.id
+            };
+            xgjlQuery(obj).then(res => {
+                let data = res.data;
+                if (data.success) {
+                    this.xgjldateList = data.data.data;
+                }
+            });
+        },
         yjEdit(row) {
             this.newModal = true;
             this.editObj = Object.assign({}, row);
+            this.editObj.bz = "";
+        },
+        xgjlClick(row) {
+            this.xgjlTable = true;
+            this.xgjlTableList(row);
         },
         backSyb() {
             delete this.ctLevel[this.ctIndex];
@@ -555,6 +596,7 @@ export default {
             this.ndyj = false;
             this.xmyj = true;
             this.tableList();
+            this.xgjlTable = false;
         },
         ctClick(val) {
             if (val.yjpl) {
@@ -593,6 +635,7 @@ export default {
                     });
                     this.tableListyjbj();
                     this.btn_cancel();
+                    this.xgjlTable = false;
                 }
             });
         }
@@ -657,6 +700,7 @@ export default {
         height: 20px !important;
         border-radius: 10px;
         box-shadow: 0px 0px 10px #0e841f;
+        font-size: 0;
     }
     .yjBlue {
         color: transparent;
@@ -665,6 +709,7 @@ export default {
         height: 20px !important;
         border-radius: 10px;
         box-shadow: 0px 0px 10px #d7b515;
+        font-size: 0;
     }
     .yjYellow {
         color: transparent;
@@ -673,6 +718,7 @@ export default {
         height: 20px !important;
         border-radius: 10px;
         box-shadow: 0px 0px 10px #df5307;
+        font-size: 0;
     }
     .yjRed {
         color: transparent;
@@ -681,6 +727,7 @@ export default {
         height: 20px !important;
         border-radius: 10px;
         box-shadow: 0px 0px 10px #d70000;
+        font-size: 0;
     }
 }
 </style>

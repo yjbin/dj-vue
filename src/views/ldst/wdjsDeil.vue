@@ -25,7 +25,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in tabList" :key="item">
+                        <tr v-for="(item,index) in tabList" :key="index">
                             <td :rowspan="item.pIdspan" :class="{hidden: item.pIddis}">{{CdDic(item.pId)}}</td>
                             <td :rowspan="item.cdmcspan" :class="{hidden: item.cdmcmdis,pointerClass:true}" @click="ctClick(item.cdbm)">{{item.cdmc}}</td>
                             <td>{{item.green}}</td>

@@ -104,7 +104,7 @@ export default {
             zdxmToggle: false,
             text_Text: "查看",
             dialogVisible: false,
-            editObj: {},
+            // editObj: {},
             bmbmoptions:[],
             xzqhoptions:[],
             ndoptions:[],

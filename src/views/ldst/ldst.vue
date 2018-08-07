@@ -232,7 +232,7 @@ export default {
             editObj: {}
         };
     },
- 
+
     methods: {
         getDic(val) {
             return getDicTab("type", val);
@@ -247,7 +247,10 @@ export default {
             return getDicTab("bmbm", row.bm);
         },
         dictList() {
-            zzandcyQuery({}).then(res => {
+            let obj = {
+                xzqh: this.$store.state.user.user.uUser.xzqh
+            };
+            zzandcyQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
                     this.typeData = data.data.data.type;
@@ -321,7 +324,8 @@ export default {
         bmksListQuery() {
             let obj = {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                bm: this.$store.state.user.user.uUser.bmbm,
+                // bm: this.$store.state.user.user.uUser.bmbm,
+                bm: "",
                 flag: "CT",
                 year: new Date().getFullYear()
             };
@@ -376,7 +380,7 @@ export default {
         zdxmListQuery() {
             let obj = {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                bm: this.$store.state.user.user.uUser.bmbm,
+                bm: "",
                 year: new Date().getFullYear()
             };
             zdxmQuery(obj).then(res => {
@@ -407,13 +411,12 @@ export default {
             this.detailShow3 = false;
         },
         fileEdit(val) {
-            this.zdxmModalInt =true;
+            this.zdxmModalInt = true;
             this.editObj = val;
         },
         colseTog(val) {
-            this.zdxmModalInt=val;
-        
-        },
+            this.zdxmModalInt = val;
+        }
     },
     mounted() {
         this.dictList();
@@ -448,8 +451,9 @@ export default {
             font-size: 14px;
             float: right;
             cursor: pointer;
-        }:hover{
-            color: #409EFF;
+        }
+        :hover {
+            color: #409eff;
         }
     }
     .centerlgo {
@@ -693,6 +697,8 @@ export default {
                     color: #fff;
                     font-size: 0.8vw;
                     cursor: pointer;
+                    padding: 0;
+                    margin: 14px 0;
                 }
                 :hover {
                     color: #409eff;

@@ -12,6 +12,12 @@
                     <el-form-item label="项目负责人">
                         <el-input placeholder="项目负责人" prefix-icon="el-icon-search" v-model.trim="seatch_fzr"></el-input>
                     </el-form-item>
+                    <el-form-item label="年度">
+                        <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
+                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
                     <el-form-item>
                         <el-button size="mini" type="primary" @click="tableList">搜索</el-button>
                     </el-form-item>
@@ -102,7 +108,7 @@
 <script>
 import { dateQuery } from "@/api/zfjs/zdxm";
 import { dateQuery2 } from "@/api/zfjs/xmjdListmoudel";
-import { getDicTab } from "@/utils/config";
+import { doCreate,getDicTab } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import zdxmCkModel from "./zdxmCkModel";
 export default {
@@ -114,6 +120,8 @@ export default {
             title: "重点项目预警",
             seatch_xmmc: "",
             seatch_fzr: "",
+            seatch_year: "",
+            ndoptions: [],
             tabList: [],
             tabListJd: [],
             newModalToggle: true,
@@ -144,11 +152,12 @@ export default {
             let obj = {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
-                bm: this.$store.state.user.user.uUser.bmbm,
+                bm: "",
                 xzqh: this.$store.state.user.user.uUser.xzqh
             };
             this.seatch_xmmc ? (obj.xmmc = this.seatch_xmmc) : "";
             this.seatch_fzr ? (obj.fzr = this.seatch_fzr) : "";
+            this.seatch_year ? (obj.year = this.seatch_year) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -224,6 +233,7 @@ export default {
     },
     mounted() {
         this.tableList();
+        this.ndoptions = doCreate("nd");
     }
 };
 </script>

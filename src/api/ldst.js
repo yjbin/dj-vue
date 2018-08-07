@@ -36,5 +36,12 @@ export function yjbjUpdate(obj) {
         data: obj
     })
 }
+export function xgjlQuery(obj) {
+    return request({
+        url: '/Yjxx/selectYjxxEditByYjxxId',
+        method: 'post',
+        data: obj
+    })
+}
 
 
