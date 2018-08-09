@@ -23,8 +23,8 @@
                     <el-table-column prop="pfjg" label="批复结果" :formatter="jgDic" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="200">
                         <template slot-scope="scope">
-                            <el-button v-if="userId=='1'" size="mini" type="primary" @click="fileEdit(scope.row)">查看</el-button>
-                            <el-button v-if="userId=='2'" size="mini" type="primary" @click="applyClick(scope.row)">批复</el-button>
+                            <el-button v-if="remarkHq()=='jdy'" size="mini" type="primary" @click="applyClick(scope.row)">{{(scope.row.pfjg=="0"||scope.row.pfjg=="1")?"查看":"批复"}}</el-button>
+                            <el-button v-else size="mini" type="primary" @click="fileEdit(scope.row)">查看</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -78,7 +78,7 @@
                     </el-form>
                     <div v-show="footerShow" class="footerBox">
                         <span slot="footer" class="dialog-footer">
-                            <button size="small" class="save" @click="btn_fileSave">保 存</button>
+                            <button size="small" class="save"  @click="btn_fileSave">保 存</button>
                         </span>
                     </div>
                 </div>
@@ -90,7 +90,6 @@
                                     <span class="capit-content">查看</span>
                                 </div>
                             </el-col>
-
                         </el-row>
                     </div>
                     <el-form :inline="true" :model="editObj2" ref="editObj2" class="demo-form-inline" label-width="120px" :rules="rulesFile2">
@@ -159,7 +158,7 @@
 
                     <div v-show="footerShow2" class="footerBox">
                         <span slot="footer" class="dialog-footer">
-                            <button size="small" class="save" @click="btn_fileSave2">保 存</button>
+                            <button size="small" class="save" v-show="tjsqShow" @click="btn_fileSave2">保 存</button>
                         </span>
                     </div>
                 </div>
@@ -238,7 +237,7 @@
                         </el-row>
                     </el-form>
 
-                    <div class="footerBox">
+                    <div class="footerBox" v-show="footerShow2">
                         <span slot="footer" class="dialog-footer">
                             <button size="small" class="save" @click="btn_fileSave3">保 存</button>
                         </span>
@@ -249,7 +248,7 @@
 
 </template>
 <script>
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu,remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { dateQuery, dateAdd, dateUpdate } from "@/api/applyrModifying";
 export default {
@@ -268,7 +267,7 @@ export default {
             addAppyl: false,
             addAppyl2: false,
             addAppyl3: false,
-            tjsqShow: true,
+            tjsqShow: false,
             pageSize: 3,
             pageNo: 1,
             totalCount: 0,
@@ -277,13 +276,14 @@ export default {
             monthoptions: [],
             pfjgoptions: [],
             code: "",
-            userId: this.$store.state.user.user.uUser.rId,
+            
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm,
             applyTit: "批复",
             editObj: {},
             editObj2: {},
             editObj3: {},
             dateList: [],
-
             rulesFile: {
                 sqr: [{ required: true, message: "不能为空" }],
                 sqsj: [{ required: true, message: "不能为空" }],
@@ -313,11 +313,15 @@ export default {
                     this.addAppyl = false;
                     this.addAppyl2 = false;
                     this.addAppyl3 = false;
-                    if (val.sqzt == "2") {
+                    if (val.sqzt == "2" || this.userXzqh!=val.xzqh || this.userBmbm!=val.bm) {
                         this.tjsqShow = false;
+                        
                     } else {
                         this.tjsqShow = true;
+                        
                     }
+                
+                    
                 }
             },
             deep: true
@@ -327,6 +331,9 @@ export default {
         }
     },
     methods: {
+        remarkHq(){
+            return remark(this);
+        },
         sjDic(row) {
             return formatDate(row.sqsj, "yyyy-MM-dd");
         },
@@ -432,7 +439,7 @@ export default {
                                     message: data.msg,
                                     type: "success"
                                 });
-                                _this.ListQuery();
+                                _this.backBtn();
                             } else {
                                 this.$message({
                                     message: data.msg,
@@ -451,7 +458,7 @@ export default {
                                     message: data.msg,
                                     type: "success"
                                 });
-                                _this.ListQuery();
+                                _this.backBtn();
                             } else {
                                 this.$message({
                                     message: data.msg,
@@ -481,7 +488,7 @@ export default {
                                     message: data.msg,
                                     type: "success"
                                 });
-                                _this.ListQuery();
+                                _this.backBtn();
                             } else {
                                 this.$message({
                                     message: data.msg,
@@ -493,12 +500,12 @@ export default {
                         dateAdd(obj).then(res => {
                             let data = res.data;
                             if (data.success) {
-                                _this.btn_cancel();
+                              
                                 this.$message({
                                     message: data.msg,
                                     type: "success"
                                 });
-                                _this.ListQuery();
+                                _this.backBtn();
                             } else {
                                 this.$message({
                                     message: data.msg,
@@ -528,7 +535,7 @@ export default {
                                     message: data.msg,
                                     type: "success"
                                 });
-                                _this.ListQuery();
+                                _this.backBtn();
                             } else {
                                 this.$message({
                                     message: data.msg,
@@ -540,12 +547,11 @@ export default {
                         dateAdd(obj).then(res => {
                             let data = res.data;
                             if (data.success) {
-                                _this.btn_cancel();
                                 this.$message({
                                     message: data.msg,
                                     type: "success"
                                 });
-                                _this.ListQuery();
+                                _this.backBtn();
                             } else {
                                 this.$message({
                                     message: data.msg,

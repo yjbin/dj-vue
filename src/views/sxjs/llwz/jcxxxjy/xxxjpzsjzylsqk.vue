@@ -16,7 +16,7 @@
                 </el-form-item>
                 <el-form-item>
                     <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" type="success" @click="fileAdd" class="topQuery">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -41,12 +41,12 @@
                     <el-table-column prop="zjr" label="主讲人" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -182,7 +182,7 @@
 <script>
 import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { validPasInt,validName } from "@/utils/validate";
 import {
@@ -258,21 +258,29 @@ export default {
                 zjr: [{ required: true, validator:validNames }],
                 xxzt: [{ required: true, message: "不能为空" }],
                 xxnr: [{ required: true, message: "不能为空" }]
-            }
+            },
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btnBack(val) {
             this.applyXg = val;
             this.ListQuery();
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},{
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            });
+            this.applyCode = Object.assign({},row);
         },
         xxsjDic(row) {
             return formatDate(row.xxsj, "yyyy-MM-dd");
@@ -304,7 +312,7 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -360,7 +368,8 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                xxlx:"1"
+                xxlx:"1",
+                remark:this.$store.state.user.user.uRole.remark
             };
             this.seatch_zjr ? obj.zjr = this.seatch_zjr : "";
             this.seatch_xxzt ? obj.xxzt = this.seatch_xxzt : "";

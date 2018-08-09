@@ -35,8 +35,8 @@ export default {
             let ndArr2 = [{ label: "全部", value: "" }];
             let dicMap = window.sessionStorage;
             for (let i = 0; i < 5; i++) {
-                ndArr.push({ label: year - i, value: year - i });
-                ndArr2.push({ label: year - i, value: year - i });
+                ndArr.push({ label: year - i, value: (year - i)+"" });
+                ndArr2.push({ label: year - i, value: (year - i)+"" });
             }
             dicMap.setItem("nd", JSON.stringify(ndArr));
             dicMap.setItem("ndTit", JSON.stringify(ndArr2));

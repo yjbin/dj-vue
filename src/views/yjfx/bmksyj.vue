@@ -164,36 +164,40 @@ export default {
 <style lang="scss">
 .dcyj {
     .yjGreen {
-        color:transparent;
-        background: green;
+        color: transparent;
+        background: #0e841f;
         width: 20px !important;
         height: 20px !important;
         border-radius: 10px;
-        box-shadow: 0px 0px 10px green;
+        box-shadow: 0px 0px 10px #0e841f;
+        font-size: 0;
     }
     .yjBlue {
-        color:transparent;
-        background: blue;
+        color: transparent;
+        background: #d7b515;
         width: 20px !important;
         height: 20px !important;
         border-radius: 10px;
-        box-shadow: 0px 0px 10px blue;
+        box-shadow: 0px 0px 10px #d7b515;
+        font-size: 0;
     }
     .yjYellow {
-        color:transparent;
-        background: yellow;
+        color: transparent;
+        background: #df5307;
         width: 20px !important;
         height: 20px !important;
         border-radius: 10px;
-        box-shadow: 0px 0px 10px yellow;
+        box-shadow: 0px 0px 10px #df5307;
+        font-size: 0;
     }
     .yjRed {
-        color:transparent;
-        background: red;
+        color: transparent;
+        background: #d70000;
         width: 20px !important;
         height: 20px !important;
         border-radius: 10px;
-        box-shadow: 0px 0px 10px red;
+        box-shadow: 0px 0px 10px #d70000;
+        font-size: 0;
     }
 }
 </style>

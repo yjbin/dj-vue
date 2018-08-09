@@ -3,14 +3,14 @@
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
                 <el-form-item label="作者">
-                <el-input placeholder="作者" prefix-icon="el-icon-search" v-model.trim="seatch_wzzz"></el-input>
+                    <el-input placeholder="作者" prefix-icon="el-icon-search" v-model.trim="seatch_wzzz"></el-input>
                 </el-form-item>
                 <el-form-item label="内容">
                     <el-input placeholder="内容" prefix-icon="el-icon-search" v-model.trim="seatch_wznr"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" type="success" @click="fileAdd" class="topQuery">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -35,12 +35,12 @@
                     <el-table-column prop="wzzz" label="作者" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -59,7 +59,7 @@
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="11" :offset="1">
-                                    <el-form-item label="类型"  prop="wzlx">
+                                    <el-form-item label="类型" prop="wzlx">
                                         <el-select suffix-icon="el-icon-date" v-model="editObj.wzlx" style="width:100%">
                                             <el-option v-for="(item,index) in wzlxOptions" :key="index" :label="item.label" :value="item.value">
                                             </el-option>
@@ -76,7 +76,7 @@
                             </el-row>
                             <el-row>
                                 <el-col :span="11">
-                                    <el-form-item label="作者"  prop="wzzz">
+                                    <el-form-item label="作者" prop="wzzz">
                                         <el-input v-model.trim="editObj.wzzz" placeholder="作者"></el-input>
                                     </el-form-item>
                                 </el-col>
@@ -95,7 +95,7 @@
                                         </el-select>
                                     </el-form-item>
                                 </el-col>
-                                <el-col :span="11"  :offset="1">
+                                <el-col :span="11" :offset="1">
                                     <el-form-item label="行政区划" prop="xzqh">
                                         <el-select v-model="editObj.xzqh" placeholder="请选择" style="width:100%" :disabled="true">
                                             <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
@@ -136,21 +136,16 @@
 </template>
 <script>
 import applyrModifying from "@/components/applyrModifying";
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { validName } from "@/utils/validate";
-import {
-    khpyQuery,
-    khpyAdd,
-    khpyUpdate,
-    khpyDel
-} from "@/api/sxjs/llcg";
-export default {  
+import { khpyQuery, khpyAdd, khpyUpdate, khpyDel } from "@/api/sxjs/llcg";
+export default {
     components: {
         applyrModifying
     },
     data() {
-         const validNames = (rule, value, callback) => {
+        const validNames = (rule, value, callback) => {
             if (!validName(value)) {
                 callback(new Error("请输入正确的姓名~^~^~"));
             } else {
@@ -158,8 +153,8 @@ export default {
             }
         };
         return {
-            applyXg:true,
-            applyCode:{},
+            applyXg: true,
+            applyCode: {},
             seatch_wzzz: "",
             seatch_wznr: "",
             textTit: "",
@@ -192,28 +187,36 @@ export default {
                 wzbt: [{ required: true, message: "不能为空" }],
                 wzlx: [{ required: true, message: "不能为空" }],
                 wznr: [{ required: true, message: "不能为空" }],
-                wzzz: [{ required: true, validator:validNames }],
+                wzzz: [{ required: true, validator: validNames }],
                 zzdw: [{ required: true, message: "不能为空" }]
             },
             wzlxOptions: [],
-            value: '',
+            value: "",
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btnBack(val) {
             this.applyXg = val;
             this.ListQuery();
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},{
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            });
+            this.applyCode = Object.assign({}, row);
         },
         wzlxDicToWord(row) {
-            return getDicTab("cglx",row.wzlx)
+            return getDicTab("cglx", row.wzlx);
         },
         lrsjDic(row) {
             return formatDate(row.lrsj, "yyyy-MM-dd");
@@ -244,7 +247,7 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -255,7 +258,6 @@ export default {
                 this.$refs.editObj.resetFields();
             }
             this.editObj = Object.assign({}, row);
-            
         },
         listDel(row) {
             this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
@@ -301,10 +303,10 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-
+                remark:this.$store.state.user.user.uRole.remark
             };
-            this.seatch_wzzz ? obj.wzzz = this.seatch_wzzz : "";
-            this.seatch_wznr ? obj.wznr = this.seatch_wznr : "";
+            this.seatch_wzzz ? (obj.wzzz = this.seatch_wzzz) : "";
+            this.seatch_wznr ? (obj.wznr = this.seatch_wznr) : "";
             khpyQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -321,7 +323,6 @@ export default {
             });
         },
         btn_fileSave() {
-            
             this.$refs.editObj.validate(valid => {
                 if (valid) {
                     let _this = this;
@@ -370,7 +371,7 @@ export default {
         checkboxChange(val) {
             this.multipleSelection = val;
         },
-        
+
         colseTog(val) {
             this.accessoryModalInt = val;
         },

@@ -19,7 +19,7 @@
                 </el-form-item>
                 <el-form-item>
                     <button class="topQuery" @click="search_query">搜索</button>
-                    <button class="topQuery" @click="newAdd">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" class="topQuery" @click="newAdd">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -46,12 +46,12 @@
                     <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="Del(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -148,7 +148,7 @@
 <script>
 import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab } from "@/utils/config";
+import { doCreate, getDicTab, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { dwgkSearch, dwgkSave, dwgkDel } from "@/api/zzjs/djzrzls/dwgkqk";
 export default {
@@ -186,10 +186,22 @@ export default {
             accessoryModalInt: false,
             upShowhide: true,
             textTitFile: "",
-            fileSrc: ""
+            fileSrc: "",
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btn_cancel() {
             this.newModal = false;
         },
@@ -235,7 +247,8 @@ export default {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             this.seatch_gkbt ? (obj.gkbt = this.seatch_gkbt) : "";
@@ -257,7 +270,7 @@ export default {
         },
         Edit(row) {
             this.newModal = true;
-            if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -275,11 +288,7 @@ export default {
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = {
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            };
+            this.applyCode = Object.assign({}, row);
         },
         btn_save() {
             let _this = this;

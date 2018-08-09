@@ -19,7 +19,7 @@
                 </el-form-item>
                 <el-form-item>
                     <button @click="ListQuery" class="topQuery">搜索</button>
-                    <button @click="fileAdd" class="topQuery">添加记录</button>
+                    <button @click="fileAdd" v-show="remarkHq()=='czy'" class="topQuery">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -42,12 +42,12 @@
                     <el-table-column prop="name" label="名称" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -159,13 +159,13 @@
             <div v-show="!applyXg">
                 <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
             </div>
-        </transition>  
+        </transition>
     </div>
 </template>
 <script>
 import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu,remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { dateQuery, dateAdd, dateUpdate, dateDel } from "@/api/zzjs/zcfg";
 export default {
@@ -210,12 +210,25 @@ export default {
                 name: [{ required: true, message: "不能为空" }],
                 fbsj: [{ required: true, message: "不能为空" }],
                 wh: [{ required: true, message: "不能为空" }],
-                content: [{ required: true, message: "不能为空" }]
-            }
+                content: [{ required: true, message: "不能为空" }],
+                
+            },
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm,
         };
     },
     watch: {},
     methods: {
+        remarkHq(){
+            return remark(this);
+        },
+        sfdqyh(row){
+            if(this.userXzqh==row.xzqh && this.userBmbm==row.bmbm){
+                return true;
+            }else{
+                return false;
+            }
+        },
         wtlxDic(row) {
             return getDicTab("wtlx", row.wtlx);
         },
@@ -253,7 +266,7 @@ export default {
                 this.$refs.editObj.resetFields();
             }
             this.editObj = Object.assign({}, row);
-            if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -263,11 +276,9 @@ export default {
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = {
-                num: Math.random(),
-                code: row.code,
-                sqzt:row.sqzt
-            };
+            let obj = Object.assign({},row)
+            obj.bm = row.bmbm;
+            this.applyCode = obj;
         },
 
         listDel(row) {
@@ -314,11 +325,12 @@ export default {
                 pageSize: this.pageSize,
                 lb: "0",
                 bmbm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark:this.$store.state.user.user.uRole.remark
             };
             this.seatch_year ? obj.year = this.seatch_year : "";
             this.seatch_name ? obj.name = this.seatch_name : "";
-            this.seatch_month ? obj.month = this.seatch_month : "";
+            this.seatch_month ? obj.month = this.seatch_month: "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {

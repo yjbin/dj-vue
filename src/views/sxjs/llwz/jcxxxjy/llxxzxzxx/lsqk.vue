@@ -16,7 +16,7 @@
                 </el-form-item>
                 <el-form-item>
                     <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" type="success" @click="fileAdd" class="topQuery">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -34,19 +34,19 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>   
+                    <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxsj" label="学习时间" :formatter="xxsjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxdd" label="地点" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="jlr" label="记录人" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="zjr" label="主讲人" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -171,7 +171,7 @@
 
                 </el-dialog>
             </div>
-            <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
         <transition enter-active-class="animated zoomIn">
             <div v-show="!applyXg">
@@ -183,15 +183,10 @@
 <script>
 import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
-import { validPasInt,validName } from "@/utils/validate";
-import {
-    dateQuery,
-    dateAdd,
-    dateUpdate,
-    dateDel
-} from "@/api/sxjs/xxb";
+import { validPasInt, validName } from "@/utils/validate";
+import { dateQuery, dateAdd, dateUpdate, dateDel } from "@/api/sxjs/xxb";
 export default {
     components: {
         accessoryModel,
@@ -213,9 +208,9 @@ export default {
             }
         };
         return {
-            applyXg:true,
-            applyCode:{},
-            hasFileShow:"",
+            applyXg: true,
+            applyCode: {},
+            hasFileShow: "",
             hasFile: false,
             seatch_zjr: "",
             seatch_xxzt: "",
@@ -253,27 +248,35 @@ export default {
                 xxsj: [{ required: true, message: "不能为空" }],
                 xxdd: [{ required: true, message: "不能为空" }],
                 cyry: [{ required: true, message: "不能为空" }],
-                ydrs: [{ required: true, validator:validNum  }],
-                sdrs: [{ required: true, validator:validNum }],
-                jlr: [{ required: true, validator:validNames }],
-                zjr: [{ required: true, validator:validNames}],
+                ydrs: [{ required: true, validator: validNum }],
+                sdrs: [{ required: true, validator: validNum }],
+                jlr: [{ required: true, validator: validNames }],
+                zjr: [{ required: true, validator: validNames }],
                 xxzt: [{ required: true, message: "不能为空" }],
                 xxnr: [{ required: true, message: "不能为空" }]
-            }
+            },
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btnBack(val) {
             this.applyXg = val;
             this.ListQuery();
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},{
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            });
+            this.applyCode = Object.assign({}, row);
         },
         xxsjDic(row) {
             return formatDate(row.xxsj, "yyyy-MM-dd");
@@ -305,7 +308,7 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -361,10 +364,11 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                xxlx:"2"
+                xxlx: "2",
+                remark:this.$store.state.user.user.uRole.remark
             };
-            this.seatch_zjr ? obj.zjr = this.seatch_zjr : "";
-            this.seatch_xxzt ? obj.xxzt = this.seatch_xxzt : "";
+            this.seatch_zjr ? (obj.zjr = this.seatch_zjr) : "";
+            this.seatch_xxzt ? (obj.xxzt = this.seatch_xxzt) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -383,7 +387,7 @@ export default {
         btn_fileSave() {
             this.$refs.editObj.validate(valid => {
                 if (valid) {
-                    if(this.editObj.ydrs>=this.editObj.sdrs){
+                    if (this.editObj.ydrs >= this.editObj.sdrs) {
                         let _this = this;
                         let obj = Object.assign({}, this.editObj);
                         obj.lrrId = this.$store.state.user.user.uUser.id;
@@ -423,22 +427,21 @@ export default {
                                     });
                                 }
                             });
-                        }    
-                    }else{
+                        }
+                    } else {
                         this.$message({
-                            message:"应到人数应大于实际人数",
-                            type:"warning"
-                        })
-                        return false
+                            message: "应到人数应大于实际人数",
+                            type: "warning"
+                        });
+                        return false;
                     }
-                       
                 }
             });
         },
         checkboxChange(val) {
             this.multipleSelection = val;
         },
-        
+
         colseTog(val) {
             this.accessoryModalInt = val;
         },
@@ -476,7 +479,6 @@ export default {
 <style lang="scss" scoped>
 .xxxjpzsjzylsqk {
     .capit-tit {
-
         .user-left {
             span {
                 color: #fff;

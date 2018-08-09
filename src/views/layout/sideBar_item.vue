@@ -2,7 +2,7 @@
     <div class="menu-wrapper">
         <template v-for="item in routes" v-if="!item.hidden&&item.children">
             <router-link v-if="item.children.length===1 &&(item.children[0].children&&!item.children[0].children.length)" :to="item.path+'/'+item.children[0].path" :key="item.children[0].name" tag="li">
-                <el-menu-item :index="item.path+'/'+item.children[0].path" class='submenu-title-noDropdown'>
+                <el-menu-item :index="item.path+'/'+item.children[0].path" class='submenu-title-noDropdown' @click.native.stop="clickLink(item.path+'/'+item.children[0].path)">
                     <i :class="item.meta.icon"></i>
                     <span v-if="item.children[0].meta&&item.children[0].meta.title">{{item.children[0].meta.title}}</span>
                 </el-menu-item>
@@ -15,7 +15,7 @@
                 <template v-for="child in item.children" v-if="!child.hidden">
                     <sidebar-item class="nest-menu" v-if="child.children&&child.children.length>0" :routes="[child]" :key="child.path"></sidebar-item>
                     <router-link v-else :to="item.path+'/'+child.path" :key="child.name" tag="li">
-                        <el-menu-item :index="item.path+'/'+child.path">
+                        <el-menu-item :index="item.path+'/'+child.path" @click.native.stop="clickLink(item.path+'/'+child.path)">
                             <span v-if="child.meta&&child.meta.title">{{child.meta.title}}</span>
                         </el-menu-item>
                     </router-link>
@@ -31,6 +31,21 @@ export default {
     props: {
         routes: {
             type: Array
+        }
+    },
+    methods: {
+        clickLink(path) {
+            let isSame = this.$route.matched.some(r => {
+                return r.path == path;
+            });
+            if (isSame) {
+                this.$router.push("/refersh");
+                this.$nextTick(function() {
+                    this.$router.push(path);
+                });
+            } else {
+                this.$router.push(path);
+            }
         }
     }
 };
@@ -119,20 +134,21 @@ export default {
 .el-menu-item {
     font-size: 16px;
 }
-.el-menu-item:hover{
-    background-color:#1b2732;
+.el-menu-item:hover {
+    background-color: #1b2732;
 }
 
-.el-menu-item.is-active, .el-submenu__title.is-active{
+.el-menu-item.is-active,
+.el-submenu__title.is-active {
     color: #1ab394 !important;
 }
-.oneNar .narOneSpan{
+.oneNar .narOneSpan {
     display: block;
     padding: 10px 0 0 20px;
     font-size: 17px;
     color: #fff;
 }
-.oneNar .narTwoSpan{
+.oneNar .narTwoSpan {
     padding: 0 0 0 30px;
 }
 </style>

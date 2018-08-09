@@ -16,7 +16,7 @@
                 </el-form-item>
                 <el-form-item>
                     <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" type="success" @click="fileAdd" class="topQuery">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -39,16 +39,16 @@
                     <el-table-column prop="skr" label="授课人" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="pxdd" label="培训地点" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="zzdw" label="组织单位" show-overflow-tooltip></el-table-column>
-                    
+
                     <el-table-column prop="sfbb" label="是否报备" :formatter="sfbbDicToWord" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -87,7 +87,7 @@
                             <el-row>
                                 <el-col :span="23">
                                     <el-form-item label="培训对象" prop="pxdx">
-                                    <el-input type="textarea" v-model.trim="editObj.pxdx" placeholder="培训对象"></el-input>
+                                        <el-input type="textarea" v-model.trim="editObj.pxdx" placeholder="培训对象"></el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
@@ -113,7 +113,7 @@
                             <el-row>
                                 <el-col :span="23">
                                     <el-form-item label="授课人信息" prop="skrxx">
-                                        <el-input type="textarea"  placeholder="请输入授课人单位、职务/职级" v-model.trim="editObj.skrxx"></el-input>
+                                        <el-input type="textarea" placeholder="请输入授课人单位、职务/职级" v-model.trim="editObj.skrxx"></el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
@@ -185,7 +185,7 @@
 
                 </el-dialog>
             </div>
-            <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
         <transition enter-active-class="animated zoomIn">
             <div v-show="!applyXg">
@@ -197,15 +197,10 @@
 <script>
 import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
-import { validPasInt,validMoney,validName } from "@/utils/validate";
-import {
-    khpyQuery,
-    khpyAdd,
-    khpyUpdate,
-    khpyDel
-} from "@/api/sxjs/jcdzzsjpx";
+import { validPasInt, validMoney, validName } from "@/utils/validate";
+import { khpyQuery, khpyAdd, khpyUpdate, khpyDel } from "@/api/sxjs/jcdzzsjpx";
 export default {
     components: {
         accessoryModel,
@@ -226,7 +221,7 @@ export default {
                 callback();
             }
         };
-         const validNum = (rule, value, callback) => {
+        const validNum = (rule, value, callback) => {
             if (!validPasInt(value)) {
                 callback(new Error("请输入正确的人数~^~^~"));
             } else {
@@ -234,8 +229,8 @@ export default {
             }
         };
         return {
-            applyXg:true,
-            applyCode:{},
+            applyXg: true,
+            applyCode: {},
             hasFile: false,
             seatch_pxzt: "",
             seatch_skr: "",
@@ -274,39 +269,47 @@ export default {
             textTitFile: "",
             fileSrc: "",
             rulesFile: {
-                pxzt:  [{ required: true, message: "不能为空" }],
-                pxsj:  [{ required: true, message: "不能为空" }],
-                pxdd:  [{ required: true, message: "不能为空" }],
-                pxdx:  [{ required: true, message: "不能为空" }],
-                pxrs:  [{ required: true, validator:validNum }],
-                pxnr:  [{ required: true, message: "不能为空" }],
-                zzdw:  [{ required: true, message: "不能为空" }],
-                skr:   [{ required: true, validator:validNames }],
+                pxzt: [{ required: true, message: "不能为空" }],
+                pxsj: [{ required: true, message: "不能为空" }],
+                pxdd: [{ required: true, message: "不能为空" }],
+                pxdx: [{ required: true, message: "不能为空" }],
+                pxrs: [{ required: true, validator: validNum }],
+                pxnr: [{ required: true, message: "不能为空" }],
+                zzdw: [{ required: true, message: "不能为空" }],
+                skr: [{ required: true, validator: validNames }],
                 skrxx: [{ required: true, message: "不能为空" }],
-                sknr:  [{ required: true, message: "不能为空" }],
-                sfbb:  [{ required: true, message: "不能为空" }],
-                bbsj:  [{ required: true, message: "不能为空" }],
-                pxfy:  [{ required: true, validator:validMoneys }]
+                sknr: [{ required: true, message: "不能为空" }],
+                sfbb: [{ required: true, message: "不能为空" }],
+                bbsj: [{ required: true, message: "不能为空" }],
+                pxfy: [{ required: true, validator: validMoneys }]
             },
             sfbbOptions: [],
-            value: '',
+            value: "",
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btnBack(val) {
             this.applyXg = val;
             this.ListQuery();
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},{
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            });
+            this.applyCode = Object.assign({}, row);
         },
         sfbbDicToWord(row) {
-            return getDicTab("sf-1", row.sfbb)
+            return getDicTab("sf-1", row.sfbb);
         },
         lrsjDic(row) {
             return formatDate(row.lrsj, "yyyy-MM-dd");
@@ -340,7 +343,7 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-             if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -351,7 +354,6 @@ export default {
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
-            
         },
         listDel(row) {
             this.$confirm("此操作将删除该数据, 是否继续?", "提示", {
@@ -398,9 +400,10 @@ export default {
                 pxlx: "2",
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark:this.$store.state.user.user.uRole.remark
             };
-            this.seatch_skr ? obj.skr = this.seatch_skr : "";
-            this.seatch_pxzt ? obj.pxzt = this.seatch_pxzt : "";
+            this.seatch_skr ? (obj.skr = this.seatch_skr) : "";
+            this.seatch_pxzt ? (obj.pxzt = this.seatch_pxzt) : "";
             khpyQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -466,7 +469,7 @@ export default {
         checkboxChange(val) {
             this.multipleSelection = val;
         },
-        
+
         colseTog(val) {
             this.accessoryModalInt = val;
         },
@@ -486,11 +489,11 @@ export default {
             };
         },
         checkFile() {
-          if( this.editObj.dybg == 0 ) {
-              this.hasFile = false;
-          }else{
-            this.hasFile = true;
-          }
+            if (this.editObj.dybg == 0) {
+                this.hasFile = false;
+            } else {
+                this.hasFile = true;
+            }
         },
         FormInt() {
             let nowDate = new Date().getTime();
@@ -514,7 +517,6 @@ export default {
 <style lang="scss" scoped>
 .xxxjpzsjzylsqk {
     .capit-tit {
-
         .user-left {
             span {
                 color: #fff;

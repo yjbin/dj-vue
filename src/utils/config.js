@@ -17,7 +17,7 @@ dicMap.setItem("sf", JSON.stringify(obj));
 obj = [{
   value: '1',
   label: '是'
-},{
+}, {
   value: '0',
   label: '否'
 }];
@@ -101,14 +101,14 @@ obj = [{
 {
   label: "2",
   value: "2"
-},{
+}, {
   label: "3",
   value: "3"
 },
 {
   label: "4",
   value: "4"
-},{
+}, {
   label: "5",
   value: "5"
 },
@@ -131,7 +131,7 @@ obj = [{
 {
   label: "10",
   value: "10"
-},{
+}, {
   label: "11",
   value: "11"
 },
@@ -177,7 +177,7 @@ obj = [{
 {
   label: "杂志",
   value: "2"
-},{
+}, {
   label: "电台",
   value: "3"
 },
@@ -198,7 +198,7 @@ obj = [{
 {
   label: "微博",
   value: "2"
-},{
+}, {
   label: "客户端",
   value: "3"
 },
@@ -335,7 +335,7 @@ function diction(key) {
       }).catch(res => {
         console.log("失败'")
       })
-    } else if(key=="cd"){
+    } else if (key == "cd") {
       cdDic().then(res => {
         let data = res.data;
         if (data.success) {
@@ -351,8 +351,7 @@ function diction(key) {
         console.log("失败'")
       })
 
-    }else
-     {
+    } else {
       dictionaries(key).then(res => {
         let data = res.data;
         if (data.success) {
@@ -405,6 +404,15 @@ export function moreMenu(data) {
     }
     return d;
   });
+}
+//用户角色信息处理
+export function remark(row) {
+  let remarks = row.$store.state.user.user.uRole.remark;
+  if (remarks.search("_") != -1) {
+    return remarks.split('_')[0];
+  } else {
+    return remarks;
+  }
 }
 
 //导出

@@ -3,14 +3,14 @@
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
                 <el-form-item label="授课人">
-                <el-input placeholder="授课人" prefix-icon="el-icon-search" v-model.trim="seatch_skr"></el-input>
+                    <el-input placeholder="授课人" prefix-icon="el-icon-search" v-model.trim="seatch_skr"></el-input>
                 </el-form-item>
                 <el-form-item label="授课内容">
                     <el-input placeholder="授课内容" prefix-icon="el-icon-search" v-model.trim="seatch_sknr"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <button type="primary" @click="ListQuery" class="topQuery">搜索</button>
-                    <button type="success" @click="fileAdd" class="topQuery">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" type="success" @click="fileAdd" class="topQuery">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -35,12 +35,12 @@
                     <el-table-column prop="bbsj" label="报备时间" :formatter="bbsjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{(scope.row.sqzt=='3'?'编辑':'查看')}}</el-button>
+                            <el-button size="mini" type="primary" @click="fileEdit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
                             <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
                             <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
                             <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
-                            <el-button v-if="scope.row.sqzt=='0'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
-                            <el-button size="mini" type="danger" @click="listDel(scope.row)">删除</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="listDel(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -135,7 +135,7 @@
 </template>
 <script>
 import applyrModifying from "@/components/applyrModifying";
-import { doCreate, getDicTab, moreMenu } from "@/utils/config";
+import { doCreate, getDicTab, moreMenu, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { khpyQuery, khpyAdd, khpyUpdate, khpyDel } from "@/api/sxjs/fdjzbb";
 import { validName } from "@/utils/validate";
@@ -152,8 +152,8 @@ export default {
             }
         };
         return {
-            applyXg:true,
-            applyCode:{},
+            applyXg: true,
+            applyCode: {},
             hasFile: false,
             seatch_skr: "",
             seatch_sknr: "",
@@ -183,26 +183,34 @@ export default {
             textTitFile: "",
             fileSrc: "",
             rulesFile: {
-                skr: [{ required: true, validator:validNames }],
+                skr: [{ required: true, validator: validNames }],
                 skrxx: [{ required: true, message: "不能为空" }],
                 sknr: [{ required: true, message: "不能为空" }],
                 sksj: [{ required: true, message: "不能为空" }],
                 bbsj: [{ required: true, message: "不能为空" }]
-            }
+            },
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btnBack(val) {
             this.applyXg = val;
             this.ListQuery();
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},{
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            });
+            this.applyCode = Object.assign({}, row);
         },
         sksjDic(row) {
             return formatDate(row.sksj, "yyyy-MM-dd");
@@ -231,7 +239,7 @@ export default {
             this.newModal = true;
             this.textTit = "新增";
             this.editObj = {};
-             this.activeShow = true;
+            this.activeShow = true;
             this.FormInt();
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
@@ -239,7 +247,7 @@ export default {
         },
         fileEdit(row) {
             this.newModal = true;
-            if (row.sqzt == "3") {
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
                 this.textTit = "编辑";
                 this.activeShow = true;
             } else {
@@ -294,9 +302,10 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark:this.$store.state.user.user.uRole.remark
             };
-            this.seatch_skr ? obj.skr = this.seatch_skr : "";
-            this.seatch_sknr ? obj.sknr = this.seatch_sknr : "";
+            this.seatch_skr ? (obj.skr = this.seatch_skr) : "";
+            this.seatch_sknr ? (obj.sknr = this.seatch_sknr) : "";
             khpyQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
