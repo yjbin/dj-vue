@@ -153,7 +153,8 @@ export default {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
                 bm: "",
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_xmmc ? (obj.xmmc = this.seatch_xmmc) : "";
             this.seatch_fzr ? (obj.fzr = this.seatch_fzr) : "";

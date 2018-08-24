@@ -2,15 +2,19 @@
     <div class="rrhs">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="宣传形式">
                     <el-select suffix-icon="el-icon-date" clearable v-model="seatch_xcxs">
                         <el-option v-for="(item,index) in xcxsqhoptions" :key="index" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <!-- <el-form-item label="软弱涣散党组织名称">
-                    <el-input placeholder="软弱涣散党组织名称" prefix-icon="el-icon-search" v-model.trim="seatch_name"></el-input>
-                </el-form-item> -->
+            
                 <el-form-item>
                     <button @click="ListQuery" class="topQuery">搜索</button>
                     <button v-show="remarkHq()=='czy'" @click="fileAdd" class="topQuery">添加记录</button>
@@ -31,6 +35,7 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门处室" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column> 
                     <el-table-column prop="xcsj" label="宣传时间" :formatter="sjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xcxs" label="宣传形式" :formatter="xcxsDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xcdd" label="宣传地点" show-overflow-tooltip></el-table-column>
@@ -52,6 +57,16 @@
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="宣传形式" prop="xcxs">
@@ -173,6 +188,7 @@ export default {
             applyCode: {},
             seatch_xcxs: "",
             seatch_name: "",
+            seatch_nd: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -180,7 +196,7 @@ export default {
             pageSize: 10,
             pageNo: 1,
             totalCount: 0,
-            // ndoptions: [],
+            ndoptions: [],
             bmbmoptions: [],
             xzqhoptions: [],
             xcxsqhoptions: [],
@@ -200,6 +216,7 @@ export default {
                 xcdd: [{ required: true, message: "不能为空" }],
                 xcnr: [{ required: true, message: "不能为空" }],
                 cyry: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
                 cyrs: [{ required: true, validator: validNum }]
             },
             userXzqh: this.$store.state.user.user.uUser.xzqh,
@@ -315,7 +332,7 @@ export default {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
                 remark:this.$store.state.user.user.uRole.remark
             };
-            // this.seatch_nd ? (obj.seatch_nd = this.seatch_nd) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             this.seatch_xcxs ? (obj.xcxs = this.seatch_xcxs) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
@@ -408,7 +425,7 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        // this.ndoptions = doCreate("ndTit");
+        this.ndoptions = doCreate("nd");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");
         this.xcxsqhoptions = doCreate("xcxs");

@@ -166,14 +166,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-                <el-row>
-                  <el-col :span="20" :offset="3">
-                    <el-form-item>
-                      <el-button size="small" type="success" @click="fileClick('zgfa')">整改方案</el-button>
-                      <el-button size="small" type="success" @click="fileClick('hyfa')">会议方案</el-button>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
+                
               </el-col>
               <!-- 右側參會人員 -->
               <el-col :span="7">
@@ -319,6 +312,8 @@ export default {
             this.formInit();
             this.chryoption = {
                 num: Date.now(),
+                bm: this.$store.state.user.user.uUser.bmbm,
+                xzqh: this.$store.state.user.user.uUser.xzqh,
                 chryList: []
             };
             this.qtryoption = {
@@ -370,6 +365,8 @@ export default {
             // this.qtryoption = row.qtry;
             this.chryoption = Object.assign({}, this.chryoption, {
                 num: Date.now(),
+                xzqh:row.xzqh,
+                bm:row.bm,
                 chryList: row.chryList
             });
             this.qtryoption = Object.assign({}, this.qtryoption, {

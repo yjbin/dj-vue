@@ -1,5 +1,6 @@
 <template>
     <div class="wmcs">
+        <div v-show="applyXg1">
             <el-form :inline="true" class="demo-form-inline">
                 <el-form-item label="年度">
                     <el-select suffix-icon="el-icon-date" v-model="seatch_year" clearable>
@@ -12,7 +13,7 @@
                 </el-form-item> -->
                 <el-form-item>
                     <button class="topQuery" @click="search_query">搜索</button>
-                    <button class="topQuery" @click="newAdd">添加记录</button>
+                    <button v-show="remarkHq()=='czy'" class="topQuery" @click="newAdd">添加记录</button>
                 </el-form-item>
             </el-form>
             <div class="capit-tit">
@@ -30,16 +31,21 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="sj" :formatter="formatterDatesj" label="问卷调查时间" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="jsBm" label="问题接收部门" :formatter="getBmbm2"  show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="hfsj" :formatter="formatterDatehfsj" label="回复时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="jsBm" label="问题接收部门" :formatter="getBmbm2" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
-                    <el-table-column label="操作" width="150">
+                    <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
-                            <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-                            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" type="primary" @click="reply(scope.row)">回复</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="Del(scope.row)">删除</el-button>
+
                         </template>
                     </el-table-column>
                 </el-table>
@@ -77,13 +83,13 @@
                                 </el-form-item>
                             </el-col>
                         </el-row>
-                        <el-row>
+                        <!-- <el-row>
                             <el-col :span="11">
                                 <el-form-item label="回复时间" prop="hfsj">
                                     <el-date-picker v-model="wmcsForm.hfsj" type="date" value-format="timestamp" placeholder="回复时间"></el-date-picker>
                                 </el-form-item>
                             </el-col>
-                        </el-row>
+                        </el-row> -->
                         <el-row>
                             <el-col :span="23">
                                 <el-form-item label="主题描述" prop="ztms">
@@ -136,43 +142,64 @@
                 </el-dialog>
             </div>
             <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
-            <!-- 行政证区划弹框 -->
-            <el-dialog :title="model_Tit" :visible.sync="xzqh_model" width="50%" :before-close="xzqhClose">
-                <el-tree :data="xzqh_data" @node-click="nodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
-                </el-tree>
-                <span slot="footer" class="dialog-footer">
-                    <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
-                    <el-button @click="xzqhClose">取 消</el-button>
-                </span>
-            </el-dialog>
-            <!-- 部门弹框 -->
-            <el-dialog :title="model_Tit" :visible.sync="bm_model" width="50%" :before-close="xzqhClose">
-                <el-tree :data="bm_data" @node-click="bmnodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
-                </el-tree>
-                <span slot="footer" class="dialog-footer">
-                    <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
-                    <el-button @click="xzqhClose">取 消</el-button>
-                </span>
-            </el-dialog>
         </div>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="applyXg2">
+                <applyr-Modifying2 :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying2>
+            </div>
+        </transition>
+        <div v-show="applyXg3">
+            <wmcs-reply-modifying :replyObj2="replyObj2" @btnBack="btnBack"></wmcs-reply-modifying>
+        </div>
+        <!-- 行政证区划弹框 -->
+        <el-dialog :title="model_Tit" :visible.sync="xzqh_model" width="50%" :before-close="xzqhClose">
+            <el-tree :data="xzqh_data" @node-click="nodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+            </el-tree>
+            <span slot="footer" class="dialog-footer">
+                <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
+                <el-button @click="xzqhClose">取 消</el-button>
+            </span>
+        </el-dialog>
+        <!-- 部门弹框 -->
+        <el-dialog :title="model_Tit" :visible.sync="bm_model" width="50%" :before-close="xzqhClose">
+            <el-tree :data="bm_data" @node-click="bmnodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+            </el-tree>
+            <span slot="footer" class="dialog-footer">
+                <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
+                <el-button @click="xzqhClose">取 消</el-button>
+            </span>
+        </el-dialog>
+        <reply-moudel :replyObj="replyObj" :newReplyModal="newReplyModal" @replynewToggle="replynewToggle"></reply-moudel>
+    </div>
 </template>
 <script>
-
+import applyrModifying2 from "@/components/applyrModifying2";
+import wmcsReplyModifying from "@/components/wmcsReplyModifying";
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab } from "@/utils/config";
+import replyMoudel from "./replyMoudel";
+import { doCreate, getDicTab, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { wmcsSearch, wmcsSave, wmcsDel } from "@/api/zhzjs/yszzjl/wmcs/wmcswt";
 import { treeQuery } from "@/api/administrative";
 import { treeQueryBm } from "@/api/department";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying2,
+        replyMoudel,
+        wmcsReplyModifying
     },
     data() {
         return {
+            applyXg1: true,
+            applyXg2: false,
+            applyXg3: false,
+            applyCode: {},
             seatch_year: "",
             seatch_js_bm: "",
             textTit: "",
+            replyObj2: {},
+            replyObj: {},
             newModal: false,
             pageModal: false,
             activeShow: true,
@@ -194,6 +221,7 @@ export default {
                 hfsj: [{ required: true, message: "不能为空" }]
             },
             accessoryModalInt: false,
+            newReplyModal: false,
             upShowhide: true,
             textTitFile: "",
             fileSrc: "",
@@ -204,10 +232,22 @@ export default {
             bm_model: false,
             xzqh: "",
             bmbm: "",
-            userXzqh: ""
+            userXzqh: "",
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btn_cancel() {
             this.newModal = false;
         },
@@ -226,9 +266,6 @@ export default {
         },
         formatterDatesj(row) {
             return formatDate(row.sj, "yyyy-MM-dd");
-        },
-        formatterDatehfsj(row) {
-            return formatDate(row.hfsj, "yyyy-MM-dd");
         },
         formatterDatelrsj(row) {
             return formatDate(Number(row.lrsj), "yyyy-MM-dd");
@@ -265,7 +302,6 @@ export default {
             let _this = this;
             if (data) {
                 if (data == "xzqh") {
-                    
                     this.model_Tit = "行政区划";
                     treeQuery({ bm: this.userXzqh }).then(res => {
                         let data = res.data;
@@ -277,7 +313,6 @@ export default {
                     });
                 } else if (data == "bm") {
                     if (this.wmcsForm.jsXzqh) {
-                        
                         this.model_Tit = "部门编码";
                         this.bmData();
                     } else {
@@ -302,6 +337,7 @@ export default {
         },
         newAdd() {
             this.newModal = true;
+            this.activeShow = true;
             this.textTit = "添加记录";
             this.wmcsForm = {};
             if (this.$refs.wmcsForms) {
@@ -315,7 +351,8 @@ export default {
                 pageSize: this.pageSize,
                 lx: 2,
                 bm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             this.seatch_js_bm ? (obj.jsBm = this.seatch_js_bm) : "";
@@ -336,7 +373,13 @@ export default {
         },
         Edit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+            if (row.sqzt == "3" && this.sfdqyh(row) && row.zt != "2") {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             if (this.$refs.wmcsForms) {
                 this.$refs.wmcsForms.resetFields();
             }
@@ -345,7 +388,51 @@ export default {
             this.wmcsForm = Object.assign({}, row);
             this.wmcsForm.jsXzqh = getDicTab("xzqh", this.wmcsForm.jsXzqh);
             this.wmcsForm.jsBm = getDicTab("bmbm", this.wmcsForm.jsBm);
-
+        },
+        reply(row) {
+            if (row.jsXzqh == this.userXzqh && row.jsBm == this.userBmbm) {
+                if (!row.hfsj) {
+                    this.newReplyModal = true;
+                    let obj = {};
+                    obj.wmcswtId = row.id;
+                    obj.wtms = row.ztms;
+                    let nowDate = new Date().getTime();
+                    obj.lrsj = nowDate;
+                    obj.lrr = this.$store.state.user.user.uUser.nickname;
+                    obj.num = Math.random() + 1;
+                    this.replyObj = obj;
+                } else {
+                    this.applyXg1 = false;
+                    this.applyXg2 = false;
+                    this.applyXg3 = true;
+                    let obj = {};
+                    obj.wmcswtId = row.id;
+                    this.replyObj2 = obj;
+                }
+            } else {
+                this.applyXg1 = false;
+                this.applyXg2 = false;
+                this.applyXg3 = true;
+                let obj = {};
+                obj.wmcswtId = row.id;
+                this.replyObj2 = obj;
+            }
+        },
+        replynewToggle(val) {
+            this.newReplyModal = val;
+            this.search_query();
+        },
+        btnBack(val) {
+            this.applyXg1 = true;
+            this.applyXg2 = false;
+            this.applyXg3 = false;
+            this.search_query();
+        },
+        applyClick(row) {
+            this.applyXg1 = false;
+            this.applyXg2 = true;
+            this.applyXg3 = false;
+            this.applyCode = Object.assign({}, row);
         },
         btn_save() {
             let _this = this;
@@ -356,6 +443,7 @@ export default {
                     obj.jsXzqh = this.xzqh;
                     obj.jsBm = this.bmbm;
                     obj.lx = 2;
+                    obj.sqzt = "1";
                     let url = "";
                     if (!obj.id) {
                         url = "add";

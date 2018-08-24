@@ -256,6 +256,7 @@ export default {
         elseStr(val) {
             this.elseList = "";
             this.elseList = val;
+            
         },
         choList(val) {
             this.chooseList = [];
@@ -303,6 +304,8 @@ export default {
             this.formInit();
             this.chryoption = {
                 num: Date.now(),
+                bm: this.$store.state.user.user.uUser.bmbm,
+                xzqh: this.$store.state.user.user.uUser.xzqh,
                 chryList: []
             };
             this.qtryoption = {
@@ -352,14 +355,17 @@ export default {
             }
 
             this.shykForm = Object.assign({}, row);
-            this.chryoption = Object.assign({}, this.chryoption, {
+            this.chryoption = {
                 num: Date.now(),
-                chryList: row.chryList
-            });
-            this.qtryoption = Object.assign({}, this.qtryoption, {
+                xzqh: row.xzqh,
+                bm: row.bm,
+                chryList: row.cjryList
+            };
+            
+            this.qtryoption = {
                 num: Date.now(),
                 qtryList: row.qtry
-            });
+            };
         },
         btnBack(val) {
             this.applyXg = val;

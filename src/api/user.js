@@ -40,3 +40,19 @@ export function revampPassword(obj) {
     data: obj
   })
 }
+//派驻配置接口
+
+export function pzbAdd(obj) {
+  return request({
+    url: '/pzb/add',
+    method: 'post',
+    data: obj
+  })
+}
+export function pzbSelect(obj) {
+  return request({
+    url: '/pzb/selectByUserId',
+    method: 'post',
+    data: obj
+  })
+}

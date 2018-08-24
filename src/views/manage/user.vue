@@ -7,6 +7,7 @@
                         <span @click="user_new">新建</span>
                         <span @click="user_revamp">修改</span>
                         <span @click="user_del">删除</span>
+                        <span @click="user_accredit">派驻</span>
                     </div>
                 </el-col>
                 <el-col :span="6" :offset="6">
@@ -33,20 +34,24 @@
             </div>
         </div>
         <user-listdialognew :newModal="newModal" :activeTab="activeTab" @newToggle="newToggle" :textTit="textTit" :userData="userData" @addevent="addevent"></user-listdialognew>
+        <xzqhor-bm-modal  @xzqhOrToggle="xzqhOrToggle" :xzqhModel="xzqhModel" :jsdwStr="jsdwStr"></xzqhor-bm-modal>
     </div>
 </template>
 <script>
 import userListdialognew from "./user-listdialognew";
+import xzqhorBmModal from "./xzqhorBmModal";
 import { userSearch, userByid, userDel } from "@/api/user";
 import { formatDate } from "@/utils/data";
 import { getDicTab } from "@/utils/config";
 export default {
     components: {
-        userListdialognew
+        userListdialognew,
+        xzqhorBmModal
     },
     data() {
         return {
             newModal: false,
+            xzqhModel: false,
             checkBox: 0,
             activeTab: "first",
             textTit: "",
@@ -55,11 +60,15 @@ export default {
             pageNo: 1,
             pageSize: 10,
             totalCount: 0,
+            jsdwStr: {},
             userData: {},
             userTable: []
         };
     },
     methods: {
+        remarkDic(row) {
+            return getDicTab("remark", row);
+        },
         addevent(val) {
             this.user_search();
         },
@@ -145,6 +154,49 @@ export default {
                         });
                     });
             }
+        },
+        //派驻员设置
+        user_accredit() {
+            let _this = this;
+            if (!this.checkBox || this.checkBox.length == 0) {
+                this.$alert(
+                    "<i class='el-icon-info'></i> 请选择要派驻的用户!",
+                    "提示",
+                    {
+                        dangerouslyUseHTMLString: true
+                    }
+                );
+                return;
+            } else if (this.checkBox.length > 1) {
+                this.$alert(
+                    "<i class='el-icon-info'></i> 只能选择一个用户!",
+                    "提示",
+                    {
+                        dangerouslyUseHTMLString: true
+                    }
+                );
+                return false;
+            }else if(this.remarkDic(this.checkBox[0].rId).indexOf("pzy")=="-1" ){
+                this.$alert(
+                    "<i class='el-icon-info'></i> 只能选择派驻员用户!",
+                    "提示",
+                    {
+                        dangerouslyUseHTMLString: true
+                    }
+                );
+                return false;
+            }
+             else {
+                this.xzqhModel = true;
+                _this.jsdwStr = {
+                    num: Math.random(),
+                    xzqh: this.checkBox[0].xzqh,
+                    userId:this.checkBox[0].id
+                };
+            }
+        },
+        xzqhOrToggle(val) {
+            this.xzqhModel = val;
         },
         suer_public(modal) {
             if (!this.checkBox || this.checkBox.length == 0) {
@@ -245,15 +297,14 @@ export default {
         border-radius: 15px;
     }
     .user-right {
-         margin-right:4px;
+        margin-right: 4px;
         .el-input__inner {
             background: #fff;
             border: none;
             height: 32px;
-            margin-top:3px;
-           
+            margin-top: 3px;
         }
-        
+
         .el-button {
             position: absolute;
             top: 0;
@@ -262,7 +313,7 @@ export default {
             border: none;
             height: 36px;
             .el-icon-search {
-                color:#ccc;
+                color: #ccc;
             }
             &:hover {
                 .el-icon-search {

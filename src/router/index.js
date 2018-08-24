@@ -118,6 +118,10 @@ import xzqhyj from '@/views/yjfx/xzqhyj'
 import WarningToedit from "@/views/yjfx/WarningToedit"
 //领导视图
 import ldst from "@/views/ldst/ldst"
+//统计分析
+import bmksfx from '@/views/tjfx/bmksyj'
+import wdjsfx from '@/views/tjfx/wdjsyj'
+import xzqhfx from '@/views/tjfx/xzqhyj'
 
 
 
@@ -234,17 +238,17 @@ export let asyncRouterMap = [
         rid: "-1"
       }
     }
-    // , {
-    //   path: 'multistageDown',
-    //   component: multistageDown,
-    //   name: 'multistageDown',
-    //   meta: {
-    //     title: '多级下拉设置',
-    //     icon: '',
-    //     rid: "-1"
-    //   }
-    // }
-  ]
+      // , {
+      //   path: 'multistageDown',
+      //   component: multistageDown,
+      //   name: 'multistageDown',
+      //   meta: {
+      //     title: '多级下拉设置',
+      //     icon: '',
+      //     rid: "-1"
+      //   }
+      // }
+    ]
   }, {
     path: '/zzjs',
     component: Layout,
@@ -1359,5 +1363,44 @@ export let asyncRouterMap = [
         rid: "-1"
       }
     }]
+  },
+  {
+    path: '/tjfx',
+    component: Layout,
+    redirect: '/tjfx/wdjsfx',
+    meta: {
+      title: '预警分析',
+      // icon: ['home.png', 'home-c.png']
+      icon: "el-icon-warning"
+    },
+    children: [{
+      path: 'wdjsfx',
+      component: wdjsfx,
+      name: 'wdjsfx',
+      meta: {
+        title: '五大建设分析',
+        icon: '',
+        rid: "-1"
+      }
+    }, {
+      path: 'xzqhfx',
+      component: xzqhfx,
+      name: 'xzqhfx',
+      meta: {
+        title: '行政区划分析',
+        icon: '',
+        rid: "-1"
+      }
+    }, {
+      path: 'bmksfx',
+      component: bmksfx,
+      name: 'bmksfx',
+      meta: {
+        title: '部门科室分析',
+        icon: '',
+        rid: "-1"
+      }
+    }
+    ]
   }
 ]

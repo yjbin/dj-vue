@@ -35,50 +35,58 @@ export default {
             peoList: [],
             chooseList: [],
             elseList: "",
-            flag:null
+            flag: null,
+            xzqh: "",
+            bm: ""
         };
     },
     props: {
         chryList: {
-             default: () => {}
+            default: () => {}
         },
         qtryList: {
-             default: () => {}
-        },
+            default: () => {}
+        }
     },
     watch: {
         //参会人员数据回填
-        chryList:{
+        chryList: {
+            immediate: true,
             handler: function(val) {
-              this.common_query(val); 
-            },
-            deep:true
+                this.xzqh = val.xzqh;
+                this.bm = val.bm;
+                this.getPeoList();
+                this.common_query(val);
+            }
         },
         //其他人员回填
         qtryList: {
             handler: function(val) {
-               this.qtry_query(val.qtryList);
+                this.qtry_query(val.qtryList);
             },
-            deep:true
-        },
+            deep: true
+        }
     },
     methods: {
-        qtry_query(val){
-            if(val){
+        qtry_query(val) {
+            if (val) {
                 this.elseList = val;
                 this.blurInput();
-            }else{
+            } else {
                 this.elseList = "";
             }
         },
-        common_query(val){
-                this.reset();
-            if(val.chryList){
+        common_query(val) {
+            this.reset();
+            if (val.chryList) {
                 this.chooseList = val.chryList;
-                let Li = Array.prototype.slice.call(document.querySelectorAll('.content-peo>li'));
-                for(var j = 0;j<this.peoList.length;j++){
-                    for(var k=0;k<this.chooseList.length;k++){
-                        if(this.peoList[j].id == this.chooseList[k].chryId){
+
+                let Li = Array.prototype.slice.call(
+                    document.querySelectorAll(".content-peo>li")
+                );
+                for (var j = 0; j < this.peoList.length; j++) {
+                    for (var k = 0; k < this.chooseList.length; k++) {
+                        if (this.peoList[j].id == this.chooseList[k].chryId) {
                             this.peoList[j].active = true;
                             Li[j].classList.add("active");
                         }
@@ -87,9 +95,9 @@ export default {
                 this.$nextTick(() => {
                     this.choosePeo = this.chooseList.length;
                 });
-                this.$emit("chooseList",this.chooseList);
-            }else{
-                return
+                this.$emit("chooseList", this.chooseList);
+            } else {
+                return;
             }
         },
         reset() {
@@ -101,22 +109,22 @@ export default {
             Liopt.forEach(i => {
                 i.classList.remove("active");
             });
-            this.peoList.forEach(i =>{
+            this.peoList.forEach(i => {
                 i.active = false;
-            })
+            });
         },
         //选择全部
         checkAll() {
-            this.flag = this.peoList.every((item) =>{
-                return item.active 
-            })
+            this.flag = this.peoList.every(item => {
+                return item.active;
+            });
             this.reset();
             let li = document.querySelectorAll(".content-peo>li");
             const li_list = Array.prototype.slice.call(li);
-            if(this.flag){
-                 this.$emit("chooseList", this.chooseList);
-            }else{
-                li_list.forEach((itme,index) => {
+            if (this.flag) {
+                this.$emit("chooseList", this.chooseList);
+            } else {
+                li_list.forEach((itme, index) => {
                     itme.classList.add("active");
                     this.peoList[index].active = true;
                 });
@@ -133,9 +141,9 @@ export default {
         },
         //textarea失去焦点
         blurInput() {
-            this.$emit("elseList",this.elseList);
+            this.$emit("elseList", this.elseList);
         },
-        selectPeo(index,item) {
+        selectPeo(index, item) {
             let arr = [];
             let li = document.querySelectorAll(".content-peo>li");
             const li_list = Array.prototype.slice.call(li);
@@ -146,43 +154,43 @@ export default {
                 li_list[index].classList.add("active");
                 this.peoList[index].active = true;
             }
-            arr = this.peoList.filter(i=>{
-                if(i.active){
-                    return i
+            arr = this.peoList.filter(i => {
+                if (i.active) {
+                    return i;
                 }
-            })
+            });
             this.chooseList = [];
-            for(let j=0;j<arr.length;j++){
+            for (let j = 0; j < arr.length; j++) {
                 var obj = {
                     chryId: arr[j].id,
                     chry: arr[j].name
-                }
+                };
                 this.chooseList.push(obj);
             }
             this.choosePeo = arr.length;
-            this.$emit("chooseList",this.chooseList);
+            this.$emit("chooseList", this.chooseList);
         },
         getPeoList() {
             let obj = {
-                bm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                bm: this.bm,
+                xzqh: this.xzqh
             };
             getAllmember(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
-                    if(data.data.data.length > 0){
+                    if (data.data.data.length > 0) {
                         let list = data.data.data;
-                        list.forEach((item,index) =>{
+                        list.forEach((item, index) => {
                             item.active = false;
-                        })
+                        });
                         this.peoList = list;
-                        this.$nextTick(()=>{
+                        this.$nextTick(() => {
                             this.common_query(this.chryList);
                             this.qtry_query(this.qtryList.qtryList);
-                        })
-                    }else{
-                        return
-                    }                   
+                        });
+                    } else {
+                        return;
+                    }
                 } else {
                     this.peoList = [];
                     this.$message({
@@ -193,9 +201,7 @@ export default {
             });
         }
     },
-    mounted() {
-        this.getPeoList();
-    }
+    mounted() {}
 };
 </script>
 <style lang="scss">
@@ -237,7 +243,7 @@ export default {
                 overflow: hidden;
                 height: 22px;
                 line-height: 22px;
-                margin-right:3px; 
+                margin-right: 3px;
                 margin-bottom: 6px;
                 border-radius: 5px;
                 padding-right: 10px;

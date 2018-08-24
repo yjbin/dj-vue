@@ -2,6 +2,18 @@
     <div class="gwjd">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="接待对象">
                     <el-input placeholder="接待对象" prefix-icon="el-icon-search" v-model.trim="seatch_jddx"></el-input>
                 </el-form-item>
@@ -58,7 +70,7 @@
                             <el-col :span="11">
                                 <el-form-item label="年度" prop="year">
                                     <el-select v-model="gwjdlForm.year" placeholder="请选择" style="width:100%">
-                                        <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
@@ -181,6 +193,8 @@ export default {
             applyCode: {},
             seatch_jddx: "",
             seatch_jdsy: "",
+            seatch_nd: "",
+            seatch_month: "",
             textTit: "",
             newModal: false,
             pageModal: false,
@@ -191,7 +205,7 @@ export default {
             gwjdlList: [],
             gwjdlForm: {},
             ndoptions: [],
-            ndoptions2: [],
+            monthoptions: [],
             month: [],
             xzqhoptions: [],
             bmoptions: [],
@@ -275,6 +289,8 @@ export default {
             };
             this.seatch_jddx ? (obj.jddx = this.seatch_jddx) : "";
             this.seatch_jdsy ? (obj.jdsy = this.seatch_jdsy) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             gwjdSearch(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -411,8 +427,7 @@ export default {
         }
     },
     mounted() {
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
         this.bmoptions = doCreate("bmbm");
         this.xzqhoptions = doCreate("xzqh");
         this.month = doCreate("month");

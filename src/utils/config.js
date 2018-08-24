@@ -269,6 +269,25 @@ obj = [{
 }
 ];
 dicMap.setItem("yjpl", JSON.stringify(obj));
+//回复状态
+obj = [{
+  label: "全部",
+  value: ""
+},
+{
+  label: "未回复",
+  value: "0"
+},
+{
+  label: "已回复",
+  value: "1"
+},
+{
+  label: "已检查",
+  value: "2"
+}
+];
+dicMap.setItem("hfzt", JSON.stringify(obj));
 import {
   dictionaries,
   xzqhDict,

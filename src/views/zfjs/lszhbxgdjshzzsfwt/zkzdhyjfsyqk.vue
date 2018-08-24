@@ -8,6 +8,12 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="参会人员">
                     <el-input placeholder="参会人员" prefix-icon="el-icon-search" v-model.trim="seatch_chry"></el-input>
                 </el-form-item>
@@ -190,6 +196,7 @@ export default {
             applyCode: {},
             seatch_nd: "",
             seatch_chry: "",
+            seatch_month: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -332,6 +339,7 @@ export default {
             };
             this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             this.seatch_chry ? (obj.chry = this.seatch_chry) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {

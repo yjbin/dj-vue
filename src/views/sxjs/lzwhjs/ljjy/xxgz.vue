@@ -67,8 +67,8 @@
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="11" :offset="1">
-                                    <el-form-item label="信息主体" prop="xxzt">
-                                        <el-input v-model.trim="editObj.xxzt" placeholder="信息主体"></el-input>
+                                    <el-form-item label="信息主题" prop="xxzt">
+                                        <el-input v-model.trim="editObj.xxzt" placeholder="信息主题"></el-input>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
@@ -222,11 +222,7 @@ export default {
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},{
-                num: Math.random(),
-                code: row.code,
-                sqzt: row.sqzt
-            });
+            this.applyCode = Object.assign({},row);
         },
         xzqhDic(row) {
             return getDicTab("xzqh", row.xzqh);

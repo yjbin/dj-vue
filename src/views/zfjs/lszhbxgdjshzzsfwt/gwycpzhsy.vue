@@ -2,6 +2,12 @@
     <div class="gwyc">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="车牌">
                     <el-input placeholder="车牌" prefix-icon="el-icon-search" v-model.trim="seatch_cp"></el-input>
                 </el-form-item>
@@ -58,7 +64,7 @@
                             <el-col :span="11">
                                 <el-form-item label="年度" prop="year">
                                     <el-select v-model="gwycForm.year" placeholder="请选择" style="width:100%">
-                                        <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                                         </el-option>
                                     </el-select>
                                 </el-form-item>
@@ -179,6 +185,7 @@ export default {
             applyCode: {},
             seatch_cp: "",
             seatch_jsr: "",
+            seatch_nd: "",
             textTit: "",
             newModal: false,
             pageModal: false,
@@ -189,7 +196,6 @@ export default {
             gwycList: [],
             gwycForm: {},
             ndoptions: [],
-            ndoptions2: [],
             month: [],
             editObj: {
                 year: "",
@@ -280,6 +286,7 @@ export default {
             };
             this.seatch_cp ? (obj.cp = this.seatch_cp) : "";
             this.seatch_jsr ? (obj.jsr = this.seatch_jsr) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             gwycSearch(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -416,8 +423,7 @@ export default {
         }
     },
     mounted() {
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
         this.bmoptions = doCreate("bmbm");
         this.xzqhoptions = doCreate("xzqh");
         this.month = doCreate("month");

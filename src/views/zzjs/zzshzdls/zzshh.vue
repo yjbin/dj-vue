@@ -293,6 +293,8 @@ export default {
             this.formInit();
             this.chryoption = {
                 num: Date.now(),
+                bm: this.$store.state.user.user.uUser.bmbm,
+                xzqh: this.$store.state.user.user.uUser.xzqh,
                 chryList: []
             };
             this.qtryoption = {
@@ -342,6 +344,8 @@ export default {
             this.shykForm = Object.assign({}, row);
             this.chryoption = Object.assign({}, this.chryoption, {
                 num: Date.now(),
+                xzqh: row.xzqh,
+                bm: row.bm,
                 chryList: row.chryList
             });
             this.qtryoption = Object.assign({}, this.qtryoption, {

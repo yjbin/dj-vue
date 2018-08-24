@@ -2,12 +2,18 @@
     <div class="xxxjpzsjzylsqk">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
-                <!-- <el-form-item label="年度">
-                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
                         <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item> -->
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="培训主题">
                     <el-input placeholder="培训主题" prefix-icon="el-icon-search" v-model.trim="seatch_pxzt"></el-input>
                 </el-form-item>
@@ -34,12 +40,13 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="pxzt" label="培训主题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="pxsj" label="培训时间" :formatter="pxsjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="skr" label="授课人" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="pxdd" label="培训地点" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="zzdw" label="组织单位" show-overflow-tooltip></el-table-column>
-
                     <el-table-column prop="sfbb" label="是否报备" :formatter="sfbbDicToWord" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
@@ -60,6 +67,24 @@
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" top="5vh">
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="月份" prop="month">
+                                        <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="主题" prop="pxzt">
@@ -234,6 +259,8 @@ export default {
             hasFile: false,
             seatch_pxzt: "",
             seatch_skr: "",
+            seatch_nd: "",
+            seatch_month: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -242,7 +269,7 @@ export default {
             pageNo: 1,
             totalCount: 0,
             ndoptions: [],
-            ndoptions2: [],
+            monthoptions: [],
             bmbmoptions: [],
             xzqhoptions: [],
             editObj: {
@@ -281,6 +308,8 @@ export default {
                 sknr: [{ required: true, message: "不能为空" }],
                 sfbb: [{ required: true, message: "不能为空" }],
                 bbsj: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
+                month: [{ required: true, message: "不能为空" }],
                 pxfy: [{ required: true, validator: validMoneys }]
             },
             sfbbOptions: [],
@@ -400,10 +429,12 @@ export default {
                 pxlx: "2",
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                remark:this.$store.state.user.user.uRole.remark
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_skr ? (obj.skr = this.seatch_skr) : "";
             this.seatch_pxzt ? (obj.pxzt = this.seatch_pxzt) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             khpyQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -505,8 +536,8 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.monthoptions = doCreate("month");
+        this.ndoptions = doCreate("nd");
         this.sfbbOptions = doCreate("sf-1");
         this.fwztoptions = doCreate("fwzt");
         this.xzqhoptions = doCreate("xzqh");

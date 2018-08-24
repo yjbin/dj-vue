@@ -211,10 +211,10 @@ export default {
         };
     },
     props: {
-        applyCode: Object
+        applyCodeJd: Object
     },
     watch: {
-        applyCode: {
+        applyCodeJd: {
             handler: function(val) {
                 if (val) {
                     this.xmid = val.code;
@@ -253,7 +253,7 @@ export default {
         },
         backBtn() {
             this.newModal = true;
-            this.$emit("btnBack", this.newModal);
+            this.$emit("btnBackJd", this.newModal);
         },
         fileEdit(row) {
             this.editObj = Object.assign({}, row);

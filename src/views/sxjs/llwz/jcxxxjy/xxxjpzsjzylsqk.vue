@@ -2,12 +2,18 @@
     <div class="xxxjpzsjzylsqk">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
-                <!-- <el-form-item label="年度">
-                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
                         <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item> -->
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="主讲人">
                     <el-input placeholder="主讲人" prefix-icon="el-icon-search" v-model.trim="seatch_zjr"></el-input>
                 </el-form-item>
@@ -34,7 +40,9 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>   
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxsj" label="学习时间" :formatter="xxsjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxdd" label="地点" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="jlr" label="记录人" show-overflow-tooltip></el-table-column>
@@ -58,6 +66,24 @@
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="月份" prop="month">
+                                        <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="时间" prop="xxsj">
@@ -113,17 +139,15 @@
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="11" :offset="1">
-                                    <el-form-item label="学习内容" prop="xxnr">
-                                        <el-input v-model.trim="editObj.xxnr" placeholder="学习内容"></el-input>
-                                    </el-form-item>
-                                </el-col>
-                            </el-row>
-                            <el-row>
-                                <el-col :span="11">
                                     <el-form-item label="记录人" prop="jlr">
                                         <el-input v-model.trim="editObj.jlr" placeholder="记录人"></el-input>
                                     </el-form-item>
                                 </el-col>
+                                <!-- <el-col :span="11" :offset="1">
+                                    <el-form-item label="学习内容" prop="xxnr">
+                                        <el-input v-model.trim="editObj.xxnr" placeholder="学习内容"></el-input>
+                                    </el-form-item>
+                                </el-col> -->
                             </el-row>
                             <el-row>
                                 <el-col :span="11">
@@ -170,7 +194,7 @@
                     </div>
                 </el-dialog>
             </div>
-            <accessory-Model :newModal="accessoryModalInt"  @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
         </div>
         <transition enter-active-class="animated zoomIn">
             <div v-show="!applyXg">
@@ -184,20 +208,15 @@ import applyrModifying from "@/components/applyrModifying";
 import accessoryModel from "@/components/accessoryModel";
 import { doCreate, getDicTab, moreMenu, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
-import { validPasInt,validName } from "@/utils/validate";
-import {
-    dateQuery,
-    dateAdd,
-    dateUpdate,
-    dateDel
-} from "@/api/sxjs/xxb";
+import { validPasInt, validName } from "@/utils/validate";
+import { dateQuery, dateAdd, dateUpdate, dateDel } from "@/api/sxjs/xxb";
 export default {
     components: {
         accessoryModel,
         applyrModifying
     },
     data() {
-         const validNames = (rule, value, callback) => {
+        const validNames = (rule, value, callback) => {
             if (!validName(value)) {
                 callback(new Error("请输入正确的姓名~^~^~"));
             } else {
@@ -212,11 +231,13 @@ export default {
             }
         };
         return {
-            applyXg:true,
-            applyCode:{},
-            hasFileShow:"",
+            applyXg: true,
+            applyCode: {},
+            hasFileShow: "",
             hasFile: false,
             seatch_zjr: "",
+            seatch_nd: "",
+            seatch_month: "",
             seatch_xxzt: "",
             textTit: "",
             pageTit: "",
@@ -226,7 +247,7 @@ export default {
             pageNo: 1,
             totalCount: 0,
             ndoptions: [],
-            ndoptions2: [],
+            monthoptions: [],
             bmbmoptions: [],
             xzqhoptions: [],
             editObj: {
@@ -252,11 +273,13 @@ export default {
                 xxsj: [{ required: true, message: "不能为空" }],
                 xxdd: [{ required: true, message: "不能为空" }],
                 cyry: [{ required: true, message: "不能为空" }],
-                ydrs: [{ required: true, validator:validNum  }],
-                sdrs: [{ required: true, validator:validNum }],
-                jlr: [{ required: true, validator:validNames }],
-                zjr: [{ required: true, validator:validNames }],
+                ydrs: [{ required: true, validator: validNum }],
+                sdrs: [{ required: true, validator: validNum }],
+                jlr: [{ required: true, validator: validNames }],
+                zjr: [{ required: true, validator: validNames }],
                 xxzt: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
+                month: [{ required: true, message: "不能为空" }],
                 xxnr: [{ required: true, message: "不能为空" }]
             },
             userXzqh: this.$store.state.user.user.uUser.xzqh,
@@ -280,7 +303,7 @@ export default {
         },
         applyClick(row) {
             this.applyXg = false;
-            this.applyCode = Object.assign({},row);
+            this.applyCode = Object.assign({}, row);
         },
         xxsjDic(row) {
             return formatDate(row.xxsj, "yyyy-MM-dd");
@@ -368,11 +391,13 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                xxlx:"1",
-                remark:this.$store.state.user.user.uRole.remark
+                xxlx: "1",
+                remark: this.$store.state.user.user.uRole.remark
             };
-            this.seatch_zjr ? obj.zjr = this.seatch_zjr : "";
-            this.seatch_xxzt ? obj.xxzt = this.seatch_xxzt : "";
+            this.seatch_zjr ? (obj.zjr = this.seatch_zjr) : "";
+            this.seatch_xxzt ? (obj.xxzt = this.seatch_xxzt) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -391,7 +416,7 @@ export default {
         btn_fileSave() {
             this.$refs.editObj.validate(valid => {
                 if (valid) {
-                    if(this.editObj.ydrs>=this.editObj.sdrs){                      
+                    if (this.editObj.ydrs >= this.editObj.sdrs) {
                         let _this = this;
                         let obj = Object.assign({}, this.editObj);
                         obj.lrrId = this.$store.state.user.user.uUser.id;
@@ -432,12 +457,12 @@ export default {
                                 }
                             });
                         }
-                    }else{
+                    } else {
                         this.$message({
-                            message:"应到人数应大于实际人数",
-                            type:"warning"
-                        })
-                        return false
+                            message: "应到人数应大于实际人数",
+                            type: "warning"
+                        });
+                        return false;
                     }
                 }
             });
@@ -445,7 +470,7 @@ export default {
         checkboxChange(val) {
             this.multipleSelection = val;
         },
-        
+
         colseTog(val) {
             this.accessoryModalInt = val;
         },
@@ -472,8 +497,8 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
+        this.monthoptions = doCreate("month");
         this.fwztoptions = doCreate("fwzt");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");
@@ -483,7 +508,6 @@ export default {
 <style lang="scss" scoped>
 .xxxjpzsjzylsqk {
     .capit-tit {
-
         .user-left {
             span {
                 color: #fff;

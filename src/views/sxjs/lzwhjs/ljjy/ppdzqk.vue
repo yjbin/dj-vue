@@ -2,6 +2,12 @@
     <div class="rrhs">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="品牌主题">
                     <el-input placeholder="品牌主题" prefix-icon="el-icon-search" v-model.trim="seatch_ppzt"></el-input>
                 </el-form-item>
@@ -28,6 +34,7 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门处室" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="ppzt" label="品牌主题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="ppdd" label="品牌地点" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="ppdz" label="品牌打造" show-overflow-tooltip></el-table-column>
@@ -50,7 +57,21 @@
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
-
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                               <el-col :span="11" :offset="1">
+                                    <el-form-item label="品牌规模" prop="ppgm">
+                                        <el-input v-model.trim="editObj.ppgm" placeholder="品牌规模"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="品牌主题" prop="ppzt">
@@ -75,13 +96,7 @@
                                     </el-form-item>
                                 </el-col>
                             </el-row>
-                            <el-row>
-                                <el-col :span="11">
-                                    <el-form-item label="品牌规模" prop="ppgm">
-                                        <el-input v-model.trim="editObj.ppgm" placeholder="品牌规模"></el-input>
-                                    </el-form-item>
-                                </el-col>
-                            </el-row>
+                           
                             <el-row>
                                 <el-col :span="23">
                                     <el-form-item label="品牌打造" prop="ppdz">
@@ -161,6 +176,7 @@ export default {
             applyCode: {},
             seatch_ppzt: "",
             seatch_zrdw: "",
+            seatch_nd: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -169,7 +185,6 @@ export default {
             pageNo: 1,
             totalCount: 0,
             ndoptions: [],
-            ndoptions2: [],
             monthoptions: [],
             bmbmoptions: [],
             xzqhoptions: [],
@@ -191,7 +206,8 @@ export default {
                 zrdw: [{ required: true, message: "不能为空" }],
                 ppdd: [{ required: true, message: "不能为空" }],
                 ppgm: [{ required: true, message: "不能为空" }],
-                ppqx: [{ required: true, message: "不能为空" }]
+                ppqx: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
             },
             userXzqh: this.$store.state.user.user.uUser.xzqh,
             userBmbm: this.$store.state.user.user.uUser.bmbm
@@ -298,10 +314,11 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                remark:this.$store.state.user.user.uRole.remark
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_ppzt ? (obj.ppzt = this.seatch_ppzt) : "";
             this.seatch_zrdw ? (obj.zrdw = this.seatch_zrdw) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -391,8 +408,7 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
         this.monthoptions = doCreate("month");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");

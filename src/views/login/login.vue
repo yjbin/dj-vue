@@ -1,69 +1,69 @@
 <template>
-    <div class="login">
-        <div class="header">
-            <!-- <span class="header-tit"><img src="../../assets/images/loginLogo.png" alt=""> </span> -->
-            <span class="header-login">欢迎您登录系统!</span>
-        </div>
-        <div class="content">
-            <el-row :gutter="20">
-                <!-- <el-col :span="6" :offset="5">
+  <div class="login">
+    <div class="header">
+      <!-- <span class="header-tit"><img src="../../assets/images/loginLogo.png" alt=""> </span> -->
+      <span class="header-login">欢迎您登录系统!</span>
+    </div>
+    <div class="content">
+      <el-row :gutter="20">
+        <!-- <el-col :span="6" :offset="5">
           <div class="fl-box">
             <div class="fl-bg">
               <img src="../../assets/images/login.png" alt="">
             </div>
           </div>
         </el-col> -->
-                <el-col :span="6" :offset="14">
-                    <div class="fr-box">
+        <el-col :span="6" :offset="14">
+          <div class="fr-box">
+            <div class="bannerLogo">
 
-                        <div class="fr-box-content">
-                            <div class="bannerLogo">
+            </div>
+            <div class="fr-box-content">
 
-                            </div>
-                            <div class="login-tit">
-                                <p>登录</p>
-                                <i></i>
-                            </div>
-                            <div class="login-content">
-                                <el-form :model="loginForm" ref="loginForm" :rules="rules">
-                                    <el-form-item prop="username">
-                                        <el-input placeholder="用户名" v-model.trim="loginForm.username" name="name">
-                                            <i slot="prefix" class="el-input__icon person" style="width:20px; height:20px"></i>
-                                        </el-input>
-                                    </el-form-item>
-                                    <el-form-item prop="password" :class="{marginToggle:error}">
-                                        <el-input type="password" placeholder="密 码" v-model.trim="loginForm.password" @keyup.enter.native="loginBtn" @focus="inputFocus" name="passwd">
-                                            <i slot="prefix" class="el-input__icon password-icon" style="width:20px; height:20px"></i>
-                                        </el-input>
-                                        <p class="error" v-if="error">用户名和密码不正确</p>
-                                    </el-form-item>
-                                    <el-row :gutter="20">
-                                        <el-col :span="12">
-                                            <el-input v-model.trim="loginForm.captcha" placeholder="请输入验证码" @keyup.enter.native="loginBtn"></el-input>
-                                        </el-col>
-                                        <el-col :span="12">
-                                            <div class="verify-img">
-                                                <img :src="src" @click="changeImg">
-                                            </div>
-                                        </el-col>
-                                    </el-row>
-                                    <div class="rember-pass">
-                                        <el-checkbox v-model="checked">记住密码</el-checkbox>
-                                    </div>
-                                    <el-button type="primary" @click="loginBtn" style="background-color:#d21523;border:0">登录</el-button>
-                                </el-form>
-                            </div>
-                        </div>
-                    </div>
-                </el-col>
-            </el-row>
-        </div>
-        <div class="footer">
-            <p>版权所有：北京中农信达信息技术有限公司
-                <span @click="clearSession" class="clearSession">清除缓存并刷新</span>
-            </p>
-        </div>
+              <div class="login-tit">
+                <p>登录</p>
+                <i></i>
+              </div>
+              <div class="login-content">
+                <el-form :model="loginForm" ref="loginForm" :rules="rules">
+                  <el-form-item prop="username">
+                    <el-input placeholder="用户名" v-model.trim="loginForm.username" name="name">
+                      <i slot="prefix" class="el-input__icon person" style="width:20px; height:20px"></i>
+                    </el-input>
+                  </el-form-item>
+                  <el-form-item prop="password" :class="{marginToggle:error}">
+                    <el-input type="password" placeholder="密 码" v-model.trim="loginForm.password" @keyup.enter.native="loginBtn" @focus="inputFocus" name="passwd">
+                      <i slot="prefix" class="el-input__icon password-icon" style="width:20px; height:20px"></i>
+                    </el-input>
+                    <p class="error" v-if="error">用户名和密码不正确</p>
+                  </el-form-item>
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-input v-model.trim="loginForm.captcha" placeholder="请输入验证码" @keyup.enter.native="loginBtn"></el-input>
+                    </el-col>
+                    <el-col :span="12">
+                      <div class="verify-img">
+                        <img :src="src" @click="changeImg">
+                      </div>
+                    </el-col>
+                  </el-row>
+                  <div class="rember-pass">
+                    <el-checkbox v-model="checked">记住密码</el-checkbox>
+                  </div>
+                  <el-button type="primary" @click="loginBtn" style="background-color:#d21523;border:0">登录</el-button>
+                </el-form>
+              </div>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
     </div>
+    <div class="footer">
+      <p>版权所有：北京中农信达信息技术有限公司
+        <span @click="clearSession" class="clearSession">清除缓存并刷新</span>
+      </p>
+    </div>
+  </div>
 </template>
 <script>
 export default {
@@ -222,6 +222,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
   }
   .fl-bg {
     height: 100%;
@@ -230,10 +231,22 @@ export default {
       height: 100%;
     }
   }
+  .bannerLogo {
+    background: url("../../assets/images/banner-logo.png") no-repeat center;
+    position: relative;
+    width: 25vw;
+    height: 6vh;
+    z-index: 1;
+    // margin-bottom: 10px;
+    top: -10px;
+    left: 0px;
+    background-size: 100% 100%;
+  }
   .fr-box-content {
     // background: #fff;
     box-shadow: 0px 4px 10px #888888;
-    width: 340px;
+    width: 29vw;
+    // height: 54vh;
     padding: 0 35px 20px 35px;
     position: relative;
     .login-tit {
@@ -253,16 +266,10 @@ export default {
         display: inline-block;
       }
     }
-    .bannerLogo {
-      background: url("../../assets/images/banner-logo.png") no-repeat center;
-      position: absolute;
-      width: 21.4vw;
-      height: 40px;
-      top: -52px;
-      left: 0px;
-      background-size: 100% 100%;
-    }
+
     .login-content {
+      width: 100%;
+      // height: 310px;
       .person {
         background: url("../../assets/images/username.png") no-repeat;
         width: 13px;

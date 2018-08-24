@@ -2,6 +2,12 @@
     <div class="ptdj">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="平台类型">
                     <el-select suffix-icon="el-icon-date" clearable v-model="seatch_ptlx">
                         <el-option v-for="(item,index) in ptlxoptions" :key="index" :label="item.label" :value="item.value">
@@ -29,6 +35,7 @@
                 <el-table :data="ptdjList" stripe border style="width: 100%">
                     <!-- <el-table-column type="selection"></el-table-column> -->
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="ptlx" :formatter="ptlxDic" label="平台类型" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="ptmc" label="平台名称" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="sfdj" :formatter="sfDic" label="是否搭建" show-overflow-tooltip></el-table-column>
@@ -56,6 +63,21 @@
                 <!-- 新建，编辑弹框 -->
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel" top="9vh">
                     <el-form :inline="true" :model="ptdjForm" ref="ptdjForms" class="demo-form-inline" label-width="150px" :rules="ptdjrules">
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="年度" prop="year">
+                                    <el-select v-model="ptdjForm.year" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="内容标题" prop="nrbt">
+                                    <el-input v-model.trim="ptdjForm.nrbt" placeholder="内容标题"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
                         <el-row>
                             <el-col :span="11">
                                 <el-form-item label="平台类型" prop="ptlx">
@@ -98,13 +120,7 @@
                                 </el-form-item>
                             </el-col>
                         </el-row>
-                        <el-row>
-                            <el-col :span="11">
-                                <el-form-item label="内容标题" prop="nrbt">
-                                    <el-input v-model.trim="ptdjForm.nrbt" placeholder="内容标题"></el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
+                        
                         <el-row>
                             <el-col :span="23">
                                 <el-form-item label="分管领导" prop="fgld">
@@ -205,6 +221,7 @@ export default {
             applyCode: {},
             seatch_ptlx: "",
             seatch_name: "",
+            seatch_nd: "",
             textTit: "",
             newModal: false,
             pageModal: false,
@@ -230,7 +247,8 @@ export default {
                 fgld: [{ required: true, message: "必填项" }],
                 gzry: [{ required: true, message: "必填项" }],
                 sfdj: [{ required: true, message: "不能为空" }],
-                shzd: [{ required: true, message: "不能为空" }]
+                shzd: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
             },
             accessoryModalInt: false,
             upShowhide: true,
@@ -309,6 +327,7 @@ export default {
             };
             this.seatch_ptlx ? (obj.ptlx = this.seatch_ptlx) : "";
             this.seatch_name ? (obj.ptmc = this.seatch_name) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             ptdjSearch(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -439,6 +458,7 @@ export default {
     mounted() {
         // this.ndoptions = doCreate("ndTit");
         this.bmoptions = doCreate("bmbm");
+        this.ndoptions = doCreate("nd");
         this.xzqhoptions = doCreate("xzqh");
         this.ptlxoptions = doCreate("ptlx");
         this.sfoptions = doCreate("sf-1");

@@ -29,10 +29,10 @@
                     <!-- <el-table-column type="selection"></el-table-column> -->
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="sj" :formatter="formatterDatesj" label="问卷调查时间" show-overflow-tooltip></el-table-column>
+                    <!-- <el-table-column prop="sj" :formatter="formatterDatesj" label="问卷调查时间" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="jsBm" label="问题接收部门" :formatter="getBmbm2"  show-overflow-tooltip></el-table-column>
                     <el-table-column prop="hfsj" :formatter="formatterDatehfsj" label="回复时间" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column> -->
                     <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column>
@@ -59,13 +59,13 @@
                                     </el-select>
                                 </el-form-item>
                             </el-col>
-                            <el-col :span="11" :offset="1">
+                            <!-- <el-col :span="11" :offset="1">
                                 <el-form-item label="问卷调查时间" prop="sj">
                                     <el-date-picker v-model="wmcsForm.sj" type="date" value-format="timestamp" placeholder="问卷调查时间"></el-date-picker>
                                 </el-form-item>
-                            </el-col>
+                            </el-col> -->
                         </el-row>
-                        <el-row>
+                        <!-- <el-row>
                             <el-col :span="11">
                                 <el-form-item label="接收行政区划" prop="jsXzqh">
                                     <el-input v-model="wmcsForm.jsXzqh" placeholder="接收行政区划" @focus="modelStatus('xzqh')"></el-input>
@@ -90,7 +90,7 @@
                                     <el-input type="textarea" v-model.trim="wmcsForm.ztms" :autosize="{ minRows: 5}"></el-input>
                                 </el-form-item>
                             </el-col>
-                        </el-row>
+                        </el-row> -->
                         <el-row>
                             <el-col :span="11">
                                 <el-form-item label="行政区划" prop="xzqh">
@@ -123,7 +123,7 @@
                         </el-row>
                         <el-row>
                             <el-col :span="20" :offset="3">
-                                <el-button size="small" type="success" @click="fileClick('fj')">附件</el-button>
+                                <el-button size="small" type="success" @click="fileClick('fj')">图片上传</el-button>
                             </el-col>
                         </el-row>
                     </el-form>

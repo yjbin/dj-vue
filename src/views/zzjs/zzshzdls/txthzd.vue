@@ -36,6 +36,8 @@
                 <el-table :data="dateList" stripe border style="width: 100%" @selection-change="checkboxChange">
                     <!-- <el-table-column type="selection"></el-table-column> -->
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="thsj" label="谈话时间" :formatter="thsjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="thdx" label="谈话对象" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="thnr" label="谈话内容" show-overflow-tooltip></el-table-column>
@@ -67,16 +69,20 @@
                                 <el-col :span="11">
                                     <el-form-item label="年度" prop="year">
                                         <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
-                                            <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="11" :offset="1">
-                                    <el-form-item label="谈话对象" prop="thdx">
-                                        <el-input v-model.trim="editObj.thdx" placeholder="谈话对象"></el-input>
+                                    <el-form-item label="月份" prop="month">
+                                        <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
                                     </el-form-item>
                                 </el-col>
+                                
                             </el-row>
                             <el-row>
                                 <el-col :span="11">
@@ -92,7 +98,12 @@
                             </el-row>
 
                             <el-row>
-                                <el-col :span="11">
+                                <el-col :span="11" >
+                                    <el-form-item label="谈话对象" prop="thdx">
+                                        <el-input v-model.trim="editObj.thdx" placeholder="谈话对象"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1" >
                                     <el-form-item label="谈话地点" prop="thdd">
                                         <el-input v-model.trim="editObj.thdd" placeholder="谈话地点"></el-input>
                                     </el-form-item>
@@ -326,7 +337,7 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                remark:this.$store.state.user.user.uRole.remark
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             this.seatch_month ? (obj.month = this.seatch_month) : "";
@@ -420,8 +431,7 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
         this.fwztoptions = doCreate("fwzt");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");

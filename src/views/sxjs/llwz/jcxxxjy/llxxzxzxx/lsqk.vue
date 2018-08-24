@@ -2,12 +2,18 @@
     <div class="xxxjpzsjzylsqk">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
-                <!-- <el-form-item label="年度">
-                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
                         <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item> -->
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="主讲人">
                     <el-input placeholder="主讲人" prefix-icon="el-icon-search" v-model.trim="seatch_zjr"></el-input>
                 </el-form-item>
@@ -34,6 +40,8 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxzt" label="学习主题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxsj" label="学习时间" :formatter="xxsjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="xxdd" label="地点" show-overflow-tooltip></el-table-column>
@@ -58,6 +66,24 @@
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="月份" prop="month">
+                                        <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="时间" prop="xxsj">
@@ -214,6 +240,8 @@ export default {
             hasFile: false,
             seatch_zjr: "",
             seatch_xxzt: "",
+            seatch_month: "",
+            seatch_nd: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -222,7 +250,7 @@ export default {
             pageNo: 1,
             totalCount: 0,
             ndoptions: [],
-            ndoptions2: [],
+            monthoptions: [],
             bmbmoptions: [],
             xzqhoptions: [],
             editObj: {
@@ -253,6 +281,8 @@ export default {
                 jlr: [{ required: true, validator: validNames }],
                 zjr: [{ required: true, validator: validNames }],
                 xxzt: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
+                month: [{ required: true, message: "不能为空" }],
                 xxnr: [{ required: true, message: "不能为空" }]
             },
             userXzqh: this.$store.state.user.user.uUser.xzqh,
@@ -369,6 +399,8 @@ export default {
             };
             this.seatch_zjr ? (obj.zjr = this.seatch_zjr) : "";
             this.seatch_xxzt ? (obj.xxzt = this.seatch_xxzt) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
+            this.seatch_month ? (obj.month = this.seatch_month) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -468,8 +500,8 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.monthoptions = doCreate("month");
+        this.ndoptions = doCreate("nd");
         this.fwztoptions = doCreate("fwzt");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");

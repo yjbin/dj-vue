@@ -2,6 +2,12 @@
     <div class="llcg">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="作者">
                     <el-input placeholder="作者" prefix-icon="el-icon-search" v-model.trim="seatch_wzzz"></el-input>
                 </el-form-item>
@@ -29,6 +35,7 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column> 
                     <el-table-column prop="wzbt" label="文章标题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="wzlx" label="类型" :formatter="wzlxDicToWord" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="wznr" label="内容" show-overflow-tooltip></el-table-column>
@@ -52,6 +59,16 @@
                 <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
+                           <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="文章标题" prop="wzbt">
@@ -157,6 +174,7 @@ export default {
             applyCode: {},
             seatch_wzzz: "",
             seatch_wznr: "",
+            seatch_nd: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -186,8 +204,10 @@ export default {
             rulesFile: {
                 wzbt: [{ required: true, message: "不能为空" }],
                 wzlx: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
                 wznr: [{ required: true, message: "不能为空" }],
                 wzzz: [{ required: true, validator: validNames }],
+                year: [{ required: true, message: "不能为空" }],
                 zzdw: [{ required: true, message: "不能为空" }]
             },
             wzlxOptions: [],
@@ -307,6 +327,7 @@ export default {
             };
             this.seatch_wzzz ? (obj.wzzz = this.seatch_wzzz) : "";
             this.seatch_wznr ? (obj.wznr = this.seatch_wznr) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             khpyQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -385,8 +406,7 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
         this.fwztoptions = doCreate("fwzt");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");

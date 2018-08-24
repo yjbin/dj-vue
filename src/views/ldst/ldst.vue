@@ -128,7 +128,7 @@
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>行政区划</th>
+                                                <th>部门科室</th>
                                                 <th>
                                                     <span class="yjGreen"></span>
                                                 </th>
@@ -381,7 +381,8 @@ export default {
             let obj = {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
                 bm: "",
-                year: new Date().getFullYear()
+                year: new Date().getFullYear(),
+                remark: this.$store.state.user.user.uRole.remark
             };
             zdxmQuery(obj).then(res => {
                 let data = res.data;
@@ -459,9 +460,9 @@ export default {
     .centerlgo {
         display: block;
         position: absolute;
-        width: 28.8vw;
+        // width: 28.8vw;
         top: 4vh;
-        left: 36.1vw;
+        left: 38vw;
     }
     .ldstLeft {
         // float: left;

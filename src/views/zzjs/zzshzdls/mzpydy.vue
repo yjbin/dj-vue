@@ -291,6 +291,8 @@ export default {
             this.formInit();
             this.chryoption = {
                 num: Date.now(),
+                bm: this.$store.state.user.user.uUser.bmbm,
+                xzqh: this.$store.state.user.user.uUser.xzqh,
                 chryList: []
             };
             this.qtryoption = {
@@ -341,6 +343,8 @@ export default {
             this.shykForm = Object.assign({}, row);
             this.chryoption = Object.assign({}, this.chryoption, {
                 num: Date.now(),
+                xzqh:row.xzqh,
+                bm:row.bm,
                 chryList: row.chryList
             });
             this.qtryoption = Object.assign({}, this.qtryoption, {
@@ -376,6 +380,7 @@ export default {
                                     type: "success",
                                     message: data.msg
                                 });
+                                _this.btn_cancel();
                                 _this.search_query();
                             } else {
                                 _this.$message({
@@ -393,6 +398,7 @@ export default {
                                     type: "success",
                                     message: data.msg
                                 });
+                                _this.btn_cancel();
                                 _this.search_query();
                             } else {
                                 _this.$message({
@@ -403,7 +409,7 @@ export default {
                         });
                     }
                 }
-                _this.btn_cancel();
+                
                 _this.chooseList = [];
                 _this.elseList = "";
             });

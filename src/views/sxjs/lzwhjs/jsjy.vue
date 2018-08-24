@@ -2,12 +2,12 @@
     <div class="rrhs">
         <div v-show="applyXg">
             <el-form :inline="true" class="demo-form-inline">
-                <!-- <el-form-item label="年度">
-                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd">
+               <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
                         <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item> -->
+                </el-form-item>
                 <el-form-item label="教育主题">
                     <el-input placeholder="教育主题" prefix-icon="el-icon-search" v-model.trim="seatch_jyzt"></el-input>
                 </el-form-item>
@@ -34,6 +34,7 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门处室" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column> 
                     <el-table-column prop="jysj" label="教育时间" :formatter="sjDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="jyzt" label="教育主题" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="jydd" label="教育地点" show-overflow-tooltip></el-table-column>
@@ -58,6 +59,21 @@
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
                             <el-row>
                                 <el-col :span="11">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-form-item label="教育地点" prop="jydd" >
+                                        <el-input v-model.trim="editObj.jydd" placeholder="教育地点"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
                                     <el-form-item label="教育主题" prop="jyzt">
                                         <el-input v-model.trim="editObj.jyzt" placeholder="教育主题"></el-input>
                                     </el-form-item>
@@ -67,14 +83,6 @@
                                         <el-date-picker v-model.trim="editObj.jysj" type="date" value-format="timestamp" placeholder="教育时间"></el-date-picker>
                                     </el-form-item>
                                 </el-col>
-                            </el-row>
-                            <el-row>
-                                <el-col :span="11">
-                                    <el-form-item label="教育地点" prop="jydd">
-                                        <el-input v-model.trim="editObj.jydd" placeholder="教育地点"></el-input>
-                                    </el-form-item>
-                                </el-col>
-
                             </el-row>
                             <el-row>
                                 <el-col :span="23">
@@ -155,6 +163,7 @@ export default {
             applyCode: {},
             seatch_jyzt: "",
             seatch_jyry: "",
+            seatch_nd: "",
             textTit: "",
             pageTit: "",
             newModal: false,
@@ -180,7 +189,8 @@ export default {
                 jyzt: [{ required: true, message: "不能为空" }],
                 jysj: [{ required: true, message: "不能为空" }],
                 jyry: [{ required: true, message: "不能为空" }],
-                jydd: [{ required: true, message: "不能为空" }]
+                jydd: [{ required: true, message: "不能为空" }],
+                year: [{ required: true, message: "不能为空" }],
             },
             userXzqh: this.$store.state.user.user.uUser.xzqh,
             userBmbm: this.$store.state.user.user.uUser.bmbm
@@ -294,6 +304,7 @@ export default {
             };
             this.seatch_jyzt ? (obj.jyzt = this.seatch_jyzt) : "";
             this.seatch_jyry ? (obj.jyry = this.seatch_jyry) : "";
+            this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -384,7 +395,7 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
+        this.ndoptions = doCreate("nd");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");
         this.xcxsqhoptions = doCreate("xcxs");

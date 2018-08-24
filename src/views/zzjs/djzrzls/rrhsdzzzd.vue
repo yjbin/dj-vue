@@ -8,6 +8,12 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="党组织负责人">
                     <el-input placeholder="党组织负责人" prefix-icon="el-icon-search" v-model.trim="seatch_fzr"></el-input>
                 </el-form-item>
@@ -34,8 +40,9 @@
                     <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
                     <el-table-column prop="xzqh" label="行政区划" :formatter="xzqhDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="bm" label="部门处室" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
-                    <el-table-column prop="bm" label="软弱涣散党组织名称" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" label="软弱涣散党组织名称" :formatter="bmbmDic" show-overflow-tooltip></el-table-column>
                     <el-table-column prop="wtlx" label="问题类型" :formatter="wtlxDic" show-overflow-tooltip></el-table-column>
                     <el-table-column label="操作" width="250">
                         <template slot-scope="scope">
@@ -56,24 +63,25 @@
                     <div class="dict-content">
                         <el-form :inline="true" :model="editObj" ref="editObj" class="demo-form-inline" label-width="120px" :rules="rulesFile">
                             <el-row>
+
                                 <el-col :span="11">
-                                    <el-form-item label="软弱涣散党组织名称" prop="bm">
-                                        <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
-                                            <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
+                                    <el-form-item label="年度" prop="year">
+                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
                                             </el-option>
                                         </el-select>
-
                                     </el-form-item>
                                 </el-col>
                                 <el-col :span="11" :offset="1">
-                                    <el-form-item label="年度" prop="year">
-                                        <el-select v-model="editObj.year" placeholder="请选择" style="width:100%">
-                                            <el-option v-for="(item,index) in ndoptions2" :key="index" :label="item.label" :value="item.value">
+                                    <el-form-item label="月份" prop="month">
+                                        <el-select v-model="editObj.month" placeholder="请选择" style="width:100%">
+                                            <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
+
                             <el-row>
                                 <el-col :span="11">
                                     <el-form-item label="党组织负责人" prop="fzr">
@@ -98,6 +106,16 @@
                                 <el-col :span="11" :offset="1">
                                     <el-form-item label="包联领导" prop="blld">
                                         <el-input v-model.trim="editObj.blld" placeholder="包联领导"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item label="软弱涣散党组织名称" prop="bm">
+                                        <el-select v-model="editObj.bm" placeholder="请选择" style="width:100%" :disabled="true">
+                                            <el-option v-for="(item,index) in bmbmoptions" :key="index" :label="item.label" :value="item.value">
+                                            </el-option>
+                                        </el-select>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
@@ -185,6 +203,7 @@ export default {
             applyXg: true,
             applyCode: {},
             seatch_year: "",
+            seatch_month: "",
             seatch_fzr: "",
             seatch_blld: "",
             textTit: "",
@@ -195,7 +214,7 @@ export default {
             pageNo: 1,
             totalCount: 0,
             ndoptions: [],
-            ndoptions2: [],
+            monthoptions: [],
             wtlxoptions: [],
             bmbmoptions: [],
             xzqhoptions: [],
@@ -213,6 +232,7 @@ export default {
             fileSrc: "",
             rulesFile: {
                 year: [{ required: true, message: "不能为空" }],
+                month: [{ required: true, message: "不能为空" }],
                 fzr: [{ required: true, message: "不能为空" }],
                 wtlx: [{ required: true, message: "不能为空" }],
                 blld: [{ required: true, message: "不能为空" }],
@@ -325,7 +345,7 @@ export default {
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
                 xzqh: this.$store.state.user.user.uUser.xzqh,
-                remark:this.$store.state.user.user.uRole.remark
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
             this.seatch_fzr ? (obj.fzr = this.seatch_fzr) : "";
@@ -420,8 +440,8 @@ export default {
     },
     mounted() {
         this.ListQuery();
-        this.ndoptions = doCreate("ndTit");
-        this.ndoptions2 = doCreate("nd");
+        this.ndoptions = doCreate("nd");
+        this.monthoptions = doCreate("month");
         this.wtlxoptions = doCreate("wtlx");
         this.fwztoptions = doCreate("fwzt");
         this.xzqhoptions = doCreate("xzqh");

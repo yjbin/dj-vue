@@ -1,92 +1,94 @@
 <template>
-  <div class="zgfl">
-    <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="年度">
-        <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
-          <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <!-- <el-form-item label="月份">
-        <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
-          <el-option v-for="(item,index) in monthoptions" :key="index" :label="item.label" :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item> -->
-      <el-form-item>
-        <button class="topQuery" @click="search_query">搜索</button>
-        <button class="topQuery" @click="newAdd">添加记录</button>
-      </el-form-item>
-    </el-form>
-    <div class="capit-tit">
-      <el-row>
-        <el-col :span="12">
-          <div class="user-left">
-            <span class="capit-content">职工福利及津补贴发放情况</span>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div class="capit-list">
-      <el-table :data="zgflList" stripe border style="width: 100%">
-        <!-- <el-table-column type="selection"></el-table-column> -->
-        <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
-        <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="zcsj" :formatter="formatterDatezcsj" label="支出时间" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="zcxm" label="支出项目" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="zcje" label="支出金额(万元)" show-overflow-tooltip></el-table-column>
-        <el-table-column prop="zcyy" label="支出原因" show-overflow-tooltip></el-table-column>
-        <!-- <el-table-column prop="lrr" label="录入人" show-overflow-tooltip></el-table-column>
-                <el-table-column prop="lrsj" :formatter="formatterDatelrsj" label="录入时间" show-overflow-tooltip></el-table-column> -->
-
-        <el-table-column label="操作" width="150">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="Edit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="Del(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="fr">
-        <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
-        </el-pagination>
-      </div>
-      <!-- 新建，编辑弹框 -->
-      <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
-        <el-form :inline="true" :model="zgflForm" ref="zgflForms" class="demo-form-inline" label-width="120px" :rules="zgflrules">
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="年度" prop="year">
-                <el-select v-model="zgflForm.year" placeholder="请选择" style="width:100%">
-                  <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="月份" prop="month">
-                <el-select v-model="zgflForm.month" placeholder="请选择" style="width:100%">
-                  <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="支出时间" prop="zcsj">
-                <el-date-picker v-model="zgflForm.zcsj" type="date" value-format="timestamp" placeholder="支出时间"></el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="支出项目" prop="zcxm">
-                <el-input v-model.trim="zgflForm.zcxm" placeholder="支出项目"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <!-- <el-row>
+    <div class="zgfl">
+        <div v-show="applyXg">
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="年度">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_nd" clearable>
+                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="月份">
+                    <el-select suffix-icon="el-icon-date" v-model="seatch_month" clearable>
+                        <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item>
+                    <button class="topQuery" @click="search_query">搜索</button>
+                    <button v-show="remarkHq()=='czy'" class="topQuery" @click="newAdd">添加记录</button>
+                </el-form-item>
+            </el-form>
+            <div class="capit-tit">
+                <el-row>
+                    <el-col :span="12">
+                        <div class="user-left">
+                            <span class="capit-content">职工福利及津补贴发放情况</span>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="capit-list">
+                <el-table :data="zgflList" stripe border style="width: 100%">
+                    <!-- <el-table-column type="selection"></el-table-column> -->
+                    <el-table-column type="index" :index="indexMethod" label="序号" width="80"></el-table-column>
+                    <el-table-column prop="xzqh" :formatter="getXzqh" label="行政区划" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="bm" :formatter="getBmbm" label="部门科室" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="year" label="年度" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="month" label="月份" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="zcsj" :formatter="formatterDatezcsj" label="支出时间" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="zcxm" label="支出项目" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="zcje" label="支出金额(万元)" show-overflow-tooltip></el-table-column>
+                    <el-table-column prop="zcyy" label="支出原因" show-overflow-tooltip></el-table-column>
+                    <el-table-column label="操作" width="250">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="primary" @click="Edit(scope.row)">{{((scope.row.sqzt=='3' && sfdqyh(scope.row))?'编辑':'查看')}}</el-button>
+                            <el-button v-if="scope.row.sqzt=='1'" size="mini" type="primary" @click="applyClick(scope.row)">申请</el-button>
+                            <el-button v-if="scope.row.sqzt=='2'" size="mini" type="primary" @click="applyClick(scope.row)">申请中</el-button>
+                            <el-button v-if="scope.row.sqzt=='3'" size="mini" type="primary" @click="applyClick(scope.row)">通过</el-button>
+                            <el-button v-if="scope.row.sqzt=='-1'" size="mini" type="primary" @click="applyClick(scope.row)">驳回</el-button>
+                            <el-button size="mini" v-show="remarkHq()=='admin'" type="danger" @click="Del(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div class="fr">
+                    <el-pagination @current-change="CurrentChange" :current-page.sync="pageNo" :page-size="pageSize" layout="total, prev, pager, next" :total="totalCount">
+                    </el-pagination>
+                </div>
+                <!-- 新建，编辑弹框 -->
+                <el-dialog :title="textTit" :visible.sync="newModal" :before-close="btn_cancel">
+                    <el-form :inline="true" :model="zgflForm" ref="zgflForms" class="demo-form-inline" label-width="120px" :rules="zgflrules">
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="年度" prop="year">
+                                    <el-select v-model="zgflForm.year" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in ndoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="月份" prop="month">
+                                    <el-select v-model="zgflForm.month" placeholder="请选择" style="width:100%">
+                                        <el-option v-for="(item,index) in month" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="支出时间" prop="zcsj">
+                                    <el-date-picker v-model="zgflForm.zcsj" type="date" value-format="timestamp" placeholder="支出时间"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="支出项目" prop="zcxm">
+                                    <el-input v-model.trim="zgflForm.zcxm" placeholder="支出项目"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <!-- <el-row>
                         <el-col :span="11">
                             <el-form-item label="预警级别" prop="yjjb">
                                 <el-radio-group v-model="zgflForm.yjjb">
@@ -103,71 +105,78 @@
                             </el-form-item>
                         </el-col>
                     </el-row> -->
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="支出金额(万元)" prop="zcje">
-                <el-input v-model.number="zgflForm.zcje" placeholder="支出金额(万元)"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="23">
-              <el-form-item label="支出原因" prop="zcyy">
-                <el-input type="textarea" v-model.trim="zgflForm.zcyy" :autosize="{ minRows: 5}"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="行政区划" prop="xzqh">
-                <el-select v-model="zgflForm.xzqh" placeholder="请选择" style="width:100%" disabled>
-                  <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="部门科室" prop="bm">
-                <el-select v-model="zgflForm.bm" placeholder="请选择" style="width:100%" disabled>
-                  <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="11">
-              <el-form-item label="录入人" prop="lrr">
-                <el-input v-model="zgflForm.lrr" placeholder="录入人" :disabled="true"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="11" :offset="1">
-              <el-form-item label="录入时间" prop="lrsj">
-                <el-date-picker v-model="zgflForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="20" :offset="3">
-              <el-button size="small" type="success" @click="fileClick('ldps')">领导批示</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-        <div class="footerBox">
-          <span slot="footer" class="dialog-footer">
-            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
-            <button @click="btn_cancel" class="cancel">取消</button>
-          </span>
-        </div>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="支出金额(万元)" prop="zcje">
+                                    <el-input v-model.number="zgflForm.zcje" placeholder="支出金额(万元)"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="23">
+                                <el-form-item label="支出原因" prop="zcyy">
+                                    <el-input type="textarea" v-model.trim="zgflForm.zcyy" :autosize="{ minRows: 5}"></el-input>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="行政区划" prop="xzqh">
+                                    <el-select v-model="zgflForm.xzqh" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in xzqhoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="部门科室" prop="bm">
+                                    <el-select v-model="zgflForm.bm" placeholder="请选择" style="width:100%" disabled>
+                                        <el-option v-for="(item,index) in bmoptions" :key="index" :label="item.label" :value="item.value">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="11">
+                                <el-form-item label="录入人" prop="lrr">
+                                    <el-input v-model="zgflForm.lrr" placeholder="录入人" :disabled="true"></el-input>
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="11" :offset="1">
+                                <el-form-item label="录入时间" prop="lrsj">
+                                    <el-date-picker v-model="zgflForm.lrsj" type="datetime" value-format="timestamp" placeholder="录入时间" :disabled="true"></el-date-picker>
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="20" :offset="3">
+                                <el-button size="small" type="success" @click="fileClick('ldps')">领导批示</el-button>
+                            </el-col>
+                        </el-row>
+                    </el-form>
+                    <div class="footerBox">
+                        <span slot="footer" class="dialog-footer">
+                            <button v-show="activeShow" class="save" @click="btn_save">保存</button>
+                            <button @click="btn_cancel" class="cancel">取消</button>
+                        </span>
+                    </div>
 
-      </el-dialog>
+                </el-dialog>
+            </div>
+            <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
+        </div>
+        <transition enter-active-class="animated zoomIn">
+            <div v-show="!applyXg">
+                <applyr-Modifying :applyCode="applyCode" @btnBack="btnBack"></applyr-Modifying>
+            </div>
+        </transition>
     </div>
-    <accessory-Model :newModal="accessoryModalInt" @colseTog="colseTog" @chileFile="chileFile" :textTitFile="textTitFile" :fileSrc="fileSrc" :upShowhide="activeShow"></accessory-Model>
-  </div>
 </template>
 <script>
 import accessoryModel from "@/components/accessoryModel";
-import { doCreate, getDicTab } from "@/utils/config";
+import applyrModifying from "@/components/applyrModifying";
+import { doCreate, getDicTab, remark } from "@/utils/config";
 import { formatDate } from "@/utils/data";
 import { validMoney } from "@/utils/validate";
 import {
@@ -177,7 +186,8 @@ import {
 } from "@/api/zfjs/lszhbxgdjshzzsfwt/zgfl";
 export default {
     components: {
-        accessoryModel
+        accessoryModel,
+        applyrModifying
     },
     data() {
         const validOfMoney = (rule, value, callback) => {
@@ -188,6 +198,8 @@ export default {
             }
         };
         return {
+            applyXg: true,
+            applyCode: {},
             seatch_nd: "",
             seatch_month: "",
             textTit: "",
@@ -210,15 +222,27 @@ export default {
                 month: [{ required: true, message: "不能为空" }],
                 zcsj: [{ required: true, message: "不能为空" }],
                 zcxm: [{ required: true, message: "不能为空" }],
-                zcje: [{ required: true,validator: validOfMoney  }]
+                zcje: [{ required: true, validator: validOfMoney }]
             },
             accessoryModalInt: false,
             upShowhide: true,
             textTitFile: "",
-            fileSrc: ""
+            fileSrc: "",
+            userXzqh: this.$store.state.user.user.uUser.xzqh,
+            userBmbm: this.$store.state.user.user.uUser.bmbm
         };
     },
     methods: {
+        remarkHq() {
+            return remark(this);
+        },
+        sfdqyh(row) {
+            if (this.userXzqh == row.xzqh && this.userBmbm == row.bm) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         btn_cancel() {
             this.newModal = false;
         },
@@ -263,7 +287,8 @@ export default {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
                 bm: this.$store.state.user.user.uUser.bmbm,
-                xzqh: this.$store.state.user.user.uUser.xzqh
+                xzqh: this.$store.state.user.user.uUser.xzqh,
+                remark: this.$store.state.user.user.uRole.remark
             };
             this.seatch_nd ? (obj.year = this.seatch_nd) : "";
             this.seatch_month ? (obj.month = this.seatch_month) : "";
@@ -284,11 +309,25 @@ export default {
         },
         Edit(row) {
             this.newModal = true;
-            this.textTit = "编辑";
+            if (row.sqzt == "3" && this.sfdqyh(row)) {
+                this.textTit = "编辑";
+                this.activeShow = true;
+            } else {
+                this.textTit = "查看";
+                this.activeShow = false;
+            }
             if (this.$refs.zgflForms) {
                 this.$refs.zgflForms.resetFields();
             }
             this.zgflForm = Object.assign({}, row);
+        },
+        btnBack(val) {
+            this.applyXg = val;
+            this.search_query();
+        },
+        applyClick(row) {
+            this.applyXg = false;
+            this.applyCode = Object.assign({}, row);
         },
         btn_save() {
             let _this = this;
@@ -297,6 +336,7 @@ export default {
                     let obj = Object.assign({}, _this.zgflForm);
                     obj.lrrId = this.$store.state.user.user.uUser.id;
                     let url = "";
+                    obj.sqzt = "1";
                     if (!obj.id) {
                         url = "add";
                         zgflSave(url, obj).then(res => {

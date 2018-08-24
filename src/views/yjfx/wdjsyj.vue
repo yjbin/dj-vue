@@ -98,12 +98,16 @@ export default {
             this.ListQuery();
         },
         ListQuery() {
+            let _this = this;
             let obj = {
                 xzqh: this.$store.state.user.user.uUser.xzqh,
                 cdbm: this.ctArr[this.ctIndex],
                 flag:this.ctIndex==0?"":"CT"
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
+            if(_this.$store.state.user.user.uRole.remark.indexOf("czy")!="-1" || _this.$store.state.user.user.uRole.remark.indexOf("ld_bm")!="-1"){
+                obj.bm = _this.$store.state.user.user.uUser.bmbm;
+            }
             wdjsyjQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {

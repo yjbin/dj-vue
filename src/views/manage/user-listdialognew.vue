@@ -1,129 +1,129 @@
 <template>
-  <div class="user-listdialog">
-    <el-dialog :title="text_Tit " :visible.sync="newModalToggle" width="50%" :before-close="userClose">
-      <div class="user-content">
-        <el-tabs v-model="tabToggle" type="card">
-          <el-tab-pane label="登录信息" name="first">
-            <el-form :inline="true" class="demo-form-inline" :model="userForm.uUser" ref="userForm" :rules="rulesUser">
-              <el-row :gutter="20">
-                <el-col :span="11" :offset="1">
-                  <el-row :gutter="20" style="margin:0 0 10px 0">
-                    <el-col :span="7" style="padding:0">
-                      <span class="red">*</span>
-                      <span>昵称：</span>
-                    </el-col>
-                    <el-col :span="17" style="padding:0">
-                      <el-form-item prop="nickname">
-                        <el-input v-model.trim="userForm.uUser.nickname"></el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-col>
-                <el-col :span="11" :offset="1">
-                  <el-row :gutter="20" style="margin:0 0 10px 0">
-                    <el-col :span="7" style="padding:0">
-                      <span class="red">*</span>
-                      <span>账号：</span>
-                    </el-col>
-                    <el-col :span="17" style="padding:0">
-                      <el-form-item prop="username">
-                        <el-input v-model.trim="userForm.uUser.username"></el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col :span="11" :offset="1">
-                  <el-row :gutter="20" style="margin:0 0 10px 0">
-                    <el-col :span="7" style="padding:0">
-                      <span class="red">*</span>
-                      <span>密码：</span>
-                    </el-col>
-                    <el-col :span="17" style="padding:0">
-                      <el-form-item prop="password">
-                        <el-input type="password" v-model.trim="userForm.uUser.password"></el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-col>
+    <div class="user-listdialog">
+        <el-dialog :title="text_Tit " :visible.sync="newModalToggle" width="50%" :before-close="userClose">
+            <div class="user-content">
+                <el-tabs v-model="tabToggle" type="card">
+                    <el-tab-pane label="登录信息" name="first">
+                        <el-form :inline="true" class="demo-form-inline" :model="userForm.uUser" ref="userForm" :rules="rulesUser">
+                            <el-row :gutter="20">
+                                <el-col :span="11" :offset="1">
+                                    <el-row :gutter="20" style="margin:0 0 10px 0">
+                                        <el-col :span="7" style="padding:0">
+                                            <span class="red">*</span>
+                                            <span>昵称：</span>
+                                        </el-col>
+                                        <el-col :span="17" style="padding:0">
+                                            <el-form-item prop="nickname">
+                                                <el-input v-model.trim="userForm.uUser.nickname"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-row :gutter="20" style="margin:0 0 10px 0">
+                                        <el-col :span="7" style="padding:0">
+                                            <span class="red">*</span>
+                                            <span>账号：</span>
+                                        </el-col>
+                                        <el-col :span="17" style="padding:0">
+                                            <el-form-item prop="username">
+                                                <el-input v-model.trim="userForm.uUser.username"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                            </el-row>
+                            <el-row :gutter="20">
+                                <el-col :span="11" :offset="1">
+                                    <el-row :gutter="20" style="margin:0 0 10px 0">
+                                        <el-col :span="7" style="padding:0">
+                                            <span class="red">*</span>
+                                            <span>密码：</span>
+                                        </el-col>
+                                        <el-col :span="17" style="padding:0">
+                                            <el-form-item prop="password">
+                                                <el-input type="password" v-model.trim="userForm.uUser.password"></el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
 
-                <el-col :span="11" :offset="1">
-                  <el-row :gutter="20" style="margin:0 0 10px 0">
-                    <el-col :span="7" style="padding:0">
-                      <span class="red">*</span>
-                      <span>角色</span>
-                    </el-col>
-                    <el-col :span="17" style="padding:0">
-                      <el-form-item prop="rId">
-                        <el-select v-model="userForm.uUser.rId" placeholder="请选择">
-                          <el-option v-for="(item,index) in typeoptions" :key="index" :label="item.label" :value="item.value">
-                          </el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-              <el-row :gutter="20">
-                <el-col :span="11" :offset="1">
-                  <el-row :gutter="20" style="margin:0 0 10px 0">
-                    <el-col :span="7" style="padding:0">
-                      <span class="red">*</span>
-                      <span>行政区划：</span>
-                    </el-col>
-                    <el-col :span="17" style="padding:0">
-                      <el-form-item>
-                        <el-input v-model="userForm.uUser.xzqh" placeholder="请选择" @focus="modelStatus('xzqh')">
-                        </el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-col>
-                <el-col :span="11" :offset="1">
-                  <el-row :gutter="20" style="margin:0 0 10px 0">
-                    <el-col :span="7" style="padding:0">
-                      <span class="red">*</span>
-                      <span>部门：</span>
-                    </el-col>
-                    <el-col :span="17" style="padding:0">
-                      <el-form-item>
-                        <el-input v-model="userForm.uUser.bmbm" placeholder="请选择" @focus="modelStatus('bm')">
-                        </el-input>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-            </el-form>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="userbtn_save">保 存</el-button>
-        <el-button @click="btn_cancel">取 消</el-button>
-      </span>
-    </el-dialog>
+                                <el-col :span="11" :offset="1">
+                                    <el-row :gutter="20" style="margin:0 0 10px 0">
+                                        <el-col :span="7" style="padding:0">
+                                            <span class="red">*</span>
+                                            <span>角色：</span>
+                                        </el-col>
+                                        <el-col :span="17" style="padding:0">
+                                            <el-form-item prop="rId">
+                                                <el-select v-model="userForm.uUser.rId" placeholder="请选择">
+                                                    <el-option v-for="(item,index) in typeoptions" :key="index" :label="item.label" :value="item.value">
+                                                    </el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                            </el-row>
+                            <el-row :gutter="20">
+                                <el-col :span="11" :offset="1">
+                                    <el-row :gutter="20" style="margin:0 0 10px 0">
+                                        <el-col :span="7" style="padding:0">
+                                            <span class="red">*</span>
+                                            <span>行政区划：</span>
+                                        </el-col>
+                                        <el-col :span="17" style="padding:0">
+                                            <el-form-item>
+                                                <el-input v-model="userForm.uUser.xzqh" placeholder="请选择" @focus="modelStatus('xzqh')">
+                                                </el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                                <el-col :span="11" :offset="1">
+                                    <el-row :gutter="20" style="margin:0 0 10px 0">
+                                        <el-col :span="7" style="padding:0">
+                                            <span class="red">*</span>
+                                            <span>部门：</span>
+                                        </el-col>
+                                        <el-col :span="17" style="padding:0">
+                                            <el-form-item>
+                                                <el-input v-model="userForm.uUser.bmbm" placeholder="请选择" @focus="modelStatus('bm')">
+                                                </el-input>
+                                            </el-form-item>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                            </el-row>
+                        </el-form>
+                    </el-tab-pane>
+                </el-tabs>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="userbtn_save">保 存</el-button>
+                <el-button @click="btn_cancel">取 消</el-button>
+            </span>
+        </el-dialog>
 
-    <!-- 行政证区划弹框 -->
-    <el-dialog :title="model_Tit" :visible.sync="xzqh_model" width="50%" :before-close="xzqhClose">
-      <el-tree :data="xzqh_data" @node-click="nodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
-      </el-tree>
-      <span slot="footer" class="dialog-footer">
-        <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
-        <el-button @click="xzqhClose">取 消</el-button>
-      </span>
-    </el-dialog>
-    <!-- 部门弹框 -->
-    <el-dialog :title="model_Tit" :visible.sync="bm_model" width="50%" :before-close="xzqhClose">
-      <el-tree :data="bm_data" @node-click="bmnodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
-      </el-tree>
-      <span slot="footer" class="dialog-footer">
-        <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
-        <el-button @click="xzqhClose">取 消</el-button>
-      </span>
-    </el-dialog>
-  </div>
+        <!-- 行政证区划弹框 -->
+        <el-dialog :title="model_Tit" :visible.sync="xzqh_model" width="50%" :before-close="xzqhClose">
+            <el-tree :data="xzqh_data" @node-click="nodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+            </el-tree>
+            <span slot="footer" class="dialog-footer">
+                <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
+                <el-button @click="xzqhClose">取 消</el-button>
+            </span>
+        </el-dialog>
+        <!-- 部门弹框 -->
+        <el-dialog :title="model_Tit" :visible.sync="bm_model" width="50%" :before-close="xzqhClose">
+            <el-tree :data="bm_data" @node-click="bmnodeClick" default-expand-all :expand-on-click-node="false" :highlight-current="true">
+            </el-tree>
+            <span slot="footer" class="dialog-footer">
+                <!-- <el-button type="primary" @click="xzqh_save">保 存</el-button> -->
+                <el-button @click="xzqhClose">取 消</el-button>
+            </span>
+        </el-dialog>
+    </div>
 </template>
 
 
@@ -166,9 +166,9 @@ export default {
                     userstatus: "",
                     yxkssj: "",
                     yxjzsj: "",
-                    mmyxsj: "",
-                    xzqh: "",
-                    bmbm: ""
+                    mmyxsj: ""
+                    // xzqh: "",
+                    // bmbm: ""
                 },
                 uUserInfo: {
                     zc: "",
@@ -206,6 +206,16 @@ export default {
         }
     },
     methods: {
+        remarkDic(row) {
+            return getDicTab("remark", row);
+        },
+        remarkHq(row) {
+            if (row.search("_") != -1) {
+                return row.split("_")[0];
+            } else {
+                return row;
+            }
+        },
         //查询部门树
         bmData() {
             treeQueryBm({ xzqh: this.xzqh }).then(res => {
@@ -275,25 +285,58 @@ export default {
                     this.userForm.uUser.xzqh = this.xzqh;
                     this.userForm.uUser.bmbm = this.bmbm;
                     this.userForm.uUser.cjr = this.$store.getters.user.uUser.nickname;
-                    userAdd(this.userForm).then(res => {
-                        let data = res.data;
-                        if (data.success) {
-                            delete _this.userForm.uUser.id;
-                            _this.btn_cancel();
-                            _this.bmbm = "";
-                            _this.xzqh = "";
+
+                    if (_this.remarkDic(_this.userForm.uUser.rId).indexOf("czy")!="-1" || _this.remarkDic(_this.userForm.uUser.rId).indexOf("ld_bm")!="-1"
+                    ) {
+                        
+                        if (_this.xzqh == "" || _this.bmbm == "") {
                             _this.$message({
-                                message: data.msg,
-                                type: "success"
-                            });
-                            _this.$emit("addevent", Math.random());
-                        } else {
-                            _this.$message({
-                                message: data.msg,
+                                message: "请选择行政区划和部门~",
                                 type: "error"
                             });
+                            return;
+                        } else {
+                            userAdd(_this.userForm).then(res => {
+                                let data = res.data;
+                                if (data.success) {
+                                    delete _this.userForm.uUser.id;
+                                    _this.btn_cancel();
+                                    _this.bmbm = "";
+                                    _this.xzqh = "";
+                                    _this.$message({
+                                        message: data.msg,
+                                        type: "success"
+                                    });
+                                    _this.$emit("addevent", Math.random());
+                                } else {
+                                    _this.$message({
+                                        message: data.msg,
+                                        type: "error"
+                                    });
+                                }
+                            });
                         }
-                    });
+                    } else {
+                        userAdd(_this.userForm).then(res => {
+                            let data = res.data;
+                            if (data.success) {
+                                delete _this.userForm.uUser.id;
+                                _this.btn_cancel();
+                                _this.bmbm = "";
+                                _this.xzqh = "";
+                                _this.$message({
+                                    message: data.msg,
+                                    type: "success"
+                                });
+                                _this.$emit("addevent", Math.random());
+                            } else {
+                                _this.$message({
+                                    message: data.msg,
+                                    type: "error"
+                                });
+                            }
+                        });
+                    }
                 }
             });
         },
@@ -309,6 +352,14 @@ export default {
                         return i;
                     });
                     dicMap.setItem("role", JSON.stringify(data.data));
+                    let remarkArr = [];
+                    data.data.map(i => {
+                        remarkArr.push({
+                            label: i.remark,
+                            value: i.id
+                        });
+                    });
+                    dicMap.setItem("remark", JSON.stringify(remarkArr));
                 }
             });
         }

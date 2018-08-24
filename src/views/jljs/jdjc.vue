@@ -7,12 +7,12 @@
                     </el-option>
                 </el-select>
             </el-form-item>
-            <!-- <el-form-item label="党组织负责人">
-                <el-input placeholder="党组织负责人" prefix-icon="el-icon-search" v-model.trim="seatch_fzr"></el-input>
+            <el-form-item label="回复状态">
+                <el-select suffix-icon="el-icon-date" v-model="seatch_hfzt" clearable>
+                    <el-option v-for="(item,index) in hfztoptions" :key="index" :label="item.label" :value="item.value">
+                    </el-option>
+                </el-select>
             </el-form-item>
-            <el-form-item label="包联领导人">
-                <el-input placeholder="包联领导人" prefix-icon="el-icon-search" v-model.trim="seatch_blld"></el-input>
-            </el-form-item> -->
             <el-form-item>
                 <button @click="ListQuery" class="topQuery">搜索</button>
                 <!-- <button @click="fileAdd" class="topQuery">添加记录</button> -->
@@ -37,6 +37,7 @@
                 <el-table-column prop="xsly" label="线索来源" :formatter="xslyDic" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="jsXzqh" label="接收行政区划" :formatter="xzqhDic2" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="jsBm" label="接收部门" :formatter="bmbmDic2" show-overflow-tooltip></el-table-column>
+                <el-table-column prop="zt" label="状态" :formatter="ztDic" show-overflow-tooltip></el-table-column>
                 <el-table-column prop="address" label="操作" width="200">
                     <template slot-scope="scope">
                         <el-button size="mini" type="primary" @click="fileEdit(scope.row)">监督编辑</el-button>
@@ -140,6 +141,7 @@ export default {
         return {
             seatch_year: "",
             seatch_fzr: "",
+            seatch_hfzt: "",
             seatch_blld: "",
             textTit: "",
             pageTit: "",
@@ -149,6 +151,7 @@ export default {
             pageNo: 1,
             totalCount: 0,
             ndoptions: [],
+            hfztoptions: [],
             sfoptions: [],
             wtlxoptions: [],
             bmbmoptions: [],
@@ -173,6 +176,9 @@ export default {
         };
     },
     methods: {
+        ztDic(row) {
+            return getDicTab("hfzt", row.zt);
+        },
         xslyDic(row) {
             return getDicTab("xsly", row.xsly);
         },
@@ -204,15 +210,19 @@ export default {
             }
         },
         fileEdit(row) {
-            
             this.textTit = "监督编辑";
+            if (row.zt == "1") {
+                this.activeShow = true;
+            } else {
+                this.activeShow = false;
+            }
             if (this.$refs.editObj) {
                 this.$refs.editObj.resetFields();
             }
             let obj = {
                 pageNo: this.pageNo,
                 pageSize: this.pageSize,
-                wtqdId:row.id
+                wtqdId: row.id
             };
             dateIdQuery(obj).then(res => {
                 let data = res.data;
@@ -271,6 +281,7 @@ export default {
                 xzqh: this.$store.state.user.user.uUser.xzqh
             };
             this.seatch_year ? (obj.year = this.seatch_year) : "";
+            this.seatch_hfzt ? (obj.zt = this.seatch_hfzt) : "";
             dateQuery(obj).then(res => {
                 let data = res.data;
                 if (data.success) {
@@ -361,6 +372,7 @@ export default {
     mounted() {
         this.ListQuery();
         this.ndoptions = doCreate("nd");
+        this.hfztoptions = doCreate("hfzt");
         this.sfoptions = doCreate("sf-1");
         this.xzqhoptions = doCreate("xzqh");
         this.bmbmoptions = doCreate("bmbm");
